@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
+    <Version>3.0.0</Version>
+    <Description>Minecraft Launcher Library for .NET Core and .NET Framework
+Support All versions, forge, optifine
+see github to learn how to use</Description>
+    <Copyright>Copyright (c) 2020 AlphaBs</Copyright>
+    <PackageProjectUrl>https://github.com/AlphaBs/CmlLib.Core</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/AlphaBs/CmlLib.Core</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageTags>Minecraft Launcher forge optifine .NET Core Crossplatform C#</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Authors>AlphaBs</Authors>
+    <PackageReleaseNotes />
+    <PackageId>CmlLib.Core</PackageId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LZMA-SDK" Version="19.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="SharpZipLib" Version="1.2.0" />
+  </ItemGroup>
+
+</Project>
