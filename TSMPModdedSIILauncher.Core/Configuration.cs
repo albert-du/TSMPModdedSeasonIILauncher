@@ -17,9 +17,5 @@ namespace TSMPModdedSIILauncher.Core
         public string RepoOwner { get; set; } = "DabbingEevee";
         public string RepoName { get; set; } = "TSMP_Modded_Season_II";
         public string Branch { get; set; } = "master";
-        public Configuration ()
-        {
-
-        }
     }
 }
