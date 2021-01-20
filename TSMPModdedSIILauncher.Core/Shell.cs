@@ -140,6 +140,14 @@ namespace TSMPModdedSIILauncher.Core
 
             return ShellExecutationResult.Success;
         }
+        protected ShellExecutationResult SetPath(string path)
+        {
+            WriteLineCyan($"MainPath : string <- \"{path}\"");
+
+            config.MainPath = path;
+
+            return ShellExecutationResult.Success;
+        }
         protected ShellExecutationResult Update(bool force = false)
         {
             
@@ -148,7 +156,7 @@ namespace TSMPModdedSIILauncher.Core
             try
             {
                 Task.Run(async () => {
-                    if (force || await ModpackService.needsDownloadAsync())
+                    if (force || await ModpackService.NeedsDownloadAsync())
                     {
                         await ModpackService.DownloadAsync();
                         await ModpackService.InstallAsync();
@@ -169,7 +177,21 @@ namespace TSMPModdedSIILauncher.Core
             return ShellExecutationResult.Failure;
         }
 
-    
+        protected ShellExecutationResult Uninstall()
+        {
+            ShellExecutationResult result;
+            try
+            {
+
+                ModpackService.Uninstall();
+                result = ShellExecutationResult.Success;
+            }
+            catch
+            {
+                result = ShellExecutationResult.Failure;
+            }
+            return result;
+        }
 
         public ShellExecutationResult Execute(string input)
         {
@@ -215,10 +237,15 @@ namespace TSMPModdedSIILauncher.Core
                 ("optifine_link", 1) => PrintResult($"OptifineLink : string = \"{config.OptifineLink}\""),
                 ("optifine_link", 2) => SetOptifineLink(tokens[1]),
                 
+                ("path", 1)         => PrintResult($"MainPath : string = \"{config.MainPath}\""),
+                ("path", 2)         => SetPath(tokens[1]),
+
                 ("update", 1)       => Update(),
                 ("update", 2) when ( tokens[1] == "-f" || tokens[1] == "--force") => Update(true),
 
                 ("config", 1) => ((Func<ShellExecutationResult>)(() => { Console.WriteLine($"{JsonSerializer.Serialize( config,new JsonSerializerOptions {WriteIndented = true }  )}\n"); return ShellExecutationResult.Success; }))(),
+
+                ("uninstall", 1) => ((Func<ShellExecutationResult>)(() => {Console.WriteLine("type 'UNINSTALL' to uninstall the modpack and game"); if (Console.ReadLine() != "UNINSTALL") return ShellExecutationResult.Success; return Uninstall();}))(),
 
                 ("exit", 1) => ShellExecutationResult.Exit,
 

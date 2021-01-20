@@ -9,7 +9,7 @@ namespace TSMPModdedSIILauncher.Core
 {
     public class ConfigService
     {
-        protected static string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSMPModdedSeasonII","config.json");
+        protected static readonly string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSMPModdedSeasonII","config.json");
         public Configuration Configuration { get; set; }
 
         public ConfigService()

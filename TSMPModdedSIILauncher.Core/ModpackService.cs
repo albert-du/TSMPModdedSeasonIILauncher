@@ -22,20 +22,18 @@ namespace TSMPModdedSIILauncher.Core
 
         private ConfigService configService;
 
-        private string modpackPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSMPModdedSeasonII");
-
         private static string GetNumbers(string input) => new string(input.Where(c => char.IsDigit(c) || c == '.' ).ToArray());
 
         private async Task<installType> getInstallTypeAsync()
         {
-            var filePath = Path.Combine(modpackPath, "install_type.txt");
+            var filePath = Path.Combine(configService.Configuration.MainPath, "install_type.txt");
             if (File.Exists(filePath))
                 return (await File.ReadAllLinesAsync(filePath))[0] == "live" ? installType.Live : installType.Release;
             else return installType.None;
         }
         private async Task<decimal> getInstallVersionAsync()
         {
-            var filePath = Path.Combine(modpackPath, "install_type.txt");
+            var filePath = Path.Combine(configService.Configuration.MainPath, "install_type.txt");
             if (File.Exists(filePath))
                 return Convert.ToDecimal(GetNumbers((await File.ReadAllLinesAsync(filePath))[1]));
             else return -1;
@@ -44,7 +42,7 @@ namespace TSMPModdedSIILauncher.Core
         public async Task DownloadAsync()
         {
             WriteLine("Preparing to Download");
-            var zipPath = Path.Combine(modpackPath, "modpack.zip");
+            var zipPath = Path.Combine(configService.Configuration.MainPath, "modpack.zip");
             if (File.Exists(zipPath)) File.Delete(zipPath);
             string url;
             if (configService.Configuration.LiveUpdates)
@@ -65,7 +63,7 @@ namespace TSMPModdedSIILauncher.Core
             
             TimeSpan ts = stopwatch.Elapsed;
 
-            if (!Directory.Exists(modpackPath)) Directory.CreateDirectory(modpackPath);
+            if (!Directory.Exists(configService.Configuration.MainPath)) Directory.CreateDirectory(configService.Configuration.MainPath);
             using var destination = File.Create(zipPath);
             await response.Content.CopyToAsync(destination);
             WriteLine($"Download Complete in {ts.Minutes}:{ts.Seconds}" );
@@ -79,9 +77,9 @@ namespace TSMPModdedSIILauncher.Core
             string[] excludedPaths = { "saves", "resourcepacks", "crash-reports", "shaderpacks", "screenshots", "options", "logs", "options.txt","optionsshader.txt","optionsof.txt" };
             string[] unnecessaryPaths = { ".github", "modules" };
             WriteLine("Installing");
-            var zipPath = Path.Combine(modpackPath, "modpack.zip");
+            var zipPath = Path.Combine(configService.Configuration.MainPath, "modpack.zip");
             var tempPath = Path.Combine(Path.GetTempPath(), "TSMPModdedSII");
-            var installPath = Path.Combine(modpackPath, "modpack");
+            var installPath = Path.Combine(configService.Configuration.MainPath, "modpack");
             using var zipArchive = ZipFile.OpenRead(zipPath);
             Directory.Delete(tempPath, true);
             ZipFile.ExtractToDirectory(zipPath, tempPath);
@@ -113,18 +111,18 @@ namespace TSMPModdedSIILauncher.Core
 
             Directory.Delete(tempPath, true);
             //write version
-            var versionFile = Path.Combine(modpackPath, "install_type.txt");
+            var versionFile = Path.Combine(configService.Configuration.MainPath, "install_type.txt");
             if (File.Exists(versionFile)) File.Delete(versionFile);
             File.WriteAllLines(versionFile, new string[] {
                 configService.Configuration.LiveUpdates ? "live" : "release",
-                configService.Configuration.LiveUpdates ?     File.ReadAllLines(Path.Combine(modpackPath, "modpack", "version.txt"))[0]   : GetNumbers((await GetAllReleasesAsync())[0].TagName)
+                configService.Configuration.LiveUpdates ?     File.ReadAllLines(Path.Combine(configService.Configuration.MainPath, "modpack", "version.txt"))[0]   : GetNumbers((await GetAllReleasesAsync())[0].TagName)
             });
 
             WriteLine("Installation complete");
 
         }
 
-        public async Task<bool> needsDownloadAsync()
+        public async Task<bool> NeedsDownloadAsync()
         {
             var installedType = await getInstallTypeAsync();
             var installedVersion = await getInstallVersionAsync();
@@ -154,6 +152,11 @@ namespace TSMPModdedSIILauncher.Core
             }
             return false;
            
+        }
+
+        public void Uninstall()
+        {
+            Directory.Delete(configService.Configuration.MainPath, true);
         }
 
         public ModpackService (ConfigService configService)

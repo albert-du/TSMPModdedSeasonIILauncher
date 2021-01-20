@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Net.Http;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -265,7 +263,7 @@ namespace TSMPModdedSIILauncher.ConsoleApp
             Console.WriteLine("\n\n\n");
 
             Task.Run(async () => {
-                var updateRequired = await modpackService.needsDownloadAsync();
+                var updateRequired = await modpackService.NeedsDownloadAsync();
                 if (updateRequired)
                 {
                     await modpackService.DownloadAsync();

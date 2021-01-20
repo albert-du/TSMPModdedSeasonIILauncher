@@ -12,7 +12,6 @@ namespace TSMPModdedSIILauncher.Core
     {
         private Configuration config;
         private HttpClient httpClient = new();
-        private string modsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSMPModdedSeasonII", "modpack", "mods");
         public OptifineService(Configuration config)
         {
             this.config = config;
@@ -21,7 +20,7 @@ namespace TSMPModdedSIILauncher.Core
         }
         public bool OptifineInstalled()
         {
-            var dirInfo = new DirectoryInfo(modsPath)
+            var dirInfo = new DirectoryInfo(config.ModsPath)
                 .GetFiles()
                 .ToList();
             return dirInfo.Exists((i) => i.Name == "optifine.jar");
@@ -29,7 +28,7 @@ namespace TSMPModdedSIILauncher.Core
 
         public void RemoveOptifine()
         {
-            var dirInfo = new DirectoryInfo(modsPath)
+            var dirInfo = new DirectoryInfo(config.ModsPath)
                 .GetFiles()
                 .ToList();
             var file = dirInfo.Find((i) => i.Name == "optifine.jar");
@@ -48,7 +47,7 @@ namespace TSMPModdedSIILauncher.Core
 
                 var response = await httpClient.GetAsync(uri);
 
-                using var file = File.Create(Path.Combine(modsPath, "optifine.jar"));
+                using var file = File.Create(Path.Combine(config.ModsPath, "optifine.jar"));
                 await response.Content.CopyToAsync(file);
 
             }).GetAwaiter().GetResult();

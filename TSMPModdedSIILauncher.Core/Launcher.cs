@@ -20,8 +20,6 @@ namespace TSMPModdedSIILauncher.Core
             return p;
         }
 
-        public string modpackPath = "";
-
         private string _password = "";
 
         private ConfigService configService;
@@ -31,7 +29,6 @@ namespace TSMPModdedSIILauncher.Core
         public Launcher(ConfigService configService)
         {
             this.configService = configService;
-            modpackPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSMPModdedSeasonII");
 
         }
         public void LaunchGame()
@@ -44,14 +41,13 @@ namespace TSMPModdedSIILauncher.Core
 
             // You can set this path to what you want like this :
             // var path = Environment.GetEnvironmentVariable("APPDATA") + "\\.mylauncher";
-            var path = Path.Combine(modpackPath, "modpack");
-            var gamePath = Path.Combine(modpackPath, "game");
-            var game = new MinecraftPath(path);
-
-            game.Library = Dir(gamePath + "/libraries");
-            game.Versions = Dir(gamePath + "/versions");
-
-            game.Runtime = Dir(gamePath + "/runtime");
+            var gamePath = configService.Configuration.GamePath;
+            var game = new MinecraftPath(configService.Configuration.ModpackPath)
+            {
+                Library = Dir(gamePath + "/libraries"),
+                Versions = Dir(gamePath + "/versions"),
+                Runtime = Dir(gamePath + "/runtime"),
+            };
             game.SetAssetsPath(gamePath + "/assets");
 
             // Create CMLauncher instance
@@ -61,14 +57,6 @@ namespace TSMPModdedSIILauncher.Core
             launcher.LogOutput += (s, e) => Console.WriteLine(e);
 
             Console.WriteLine($"Initialized in {launcher.MinecraftPath.BasePath}");
-
-            var versions = launcher.GetAllVersions(); // Get all installed profiles and load all profiles from mojang server
-            foreach (var item in versions) // Display all profiles 
-            {
-                // You can filter snapshots and old versions to add if statement : 
-                // if (item.MType == MProfileType.Custom || item.MType == MProfileType.Release)
-                Console.WriteLine(item.Type + " " + item.Name);
-            }
 
             var launchOption = new MLaunchOption
             {
