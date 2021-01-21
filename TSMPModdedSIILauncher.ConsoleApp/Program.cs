@@ -260,7 +260,7 @@ namespace TSMPModdedSIILauncher.ConsoleApp
             }
             // Check installation
             // Download if needed
-            Console.WriteLine("\n\n\n");
+            Console.WriteLine("\n\n\n\n\n\n");
 
             Task.Run(async () => {
                 var updateRequired = await modpackService.NeedsDownloadAsync();

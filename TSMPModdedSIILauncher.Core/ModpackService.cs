@@ -81,11 +81,12 @@ namespace TSMPModdedSIILauncher.Core
             var tempPath = Path.Combine(Path.GetTempPath(), "TSMPModdedSII");
             var installPath = Path.Combine(configService.Configuration.MainPath, "modpack");
             using var zipArchive = ZipFile.OpenRead(zipPath);
-            Directory.Delete(tempPath, true);
+            if (Directory.Exists(tempPath)) Directory.Delete(tempPath, true);
             ZipFile.ExtractToDirectory(zipPath, tempPath);
 
             // delete old files and folders
             WriteLine("Cleaning Directory");
+            if (!Directory.Exists(installPath)) Directory.CreateDirectory(installPath);
             foreach (var folder in Directory.GetDirectories(installPath).Select(i => new DirectoryInfo(i)))
             {
                 if (!excludedPaths.Contains(folder.Name) ) Directory.Delete(folder.FullName, true);
@@ -109,7 +110,7 @@ namespace TSMPModdedSIILauncher.Core
                 if (!excludedPaths.Contains(file.Name) && !unnecessaryPaths.Contains(file.Name)) file.CopyTo(Path.Combine(installPath, file.Name), false);
 
 
-            Directory.Delete(tempPath, true);
+            if (Directory.Exists(tempPath)) Directory.Delete(tempPath, true);
             //write version
             var versionFile = Path.Combine(configService.Configuration.MainPath, "install_type.txt");
             if (File.Exists(versionFile)) File.Delete(versionFile);
@@ -156,7 +157,7 @@ namespace TSMPModdedSIILauncher.Core
 
         public void Uninstall()
         {
-            Directory.Delete(configService.Configuration.MainPath, true);
+            if (Directory.Exists(configService.Configuration.MainPath)) Directory.Delete(configService.Configuration.MainPath, true);
         }
 
         public ModpackService (ConfigService configService)

@@ -42,9 +42,14 @@ namespace CmlLib.Core.Downloader
                 var javaUrl = "";
                 using (var wc = new WebClient())
                 {
+                    //this line was added
+                    if (MRule.OSName == MRule.Linux) return "java";
+
                     json = wc.DownloadString(MojangServer.LauncherMeta);
 
                     var job = JObject.Parse(json)[MRule.OSName];
+                    
+                    
                     javaUrl = job[MRule.Arch]?["jre"]?["url"]?.ToString();
 
                     if (string.IsNullOrEmpty(javaUrl))
