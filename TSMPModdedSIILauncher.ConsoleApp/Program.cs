@@ -93,11 +93,7 @@ namespace TSMPModdedSIILauncher.ConsoleApp
                         Console.ForegroundColor = ConsoleColor.Magenta;
                         {
                             var input = EditText(configService.Configuration.Email).Replace(" ", "") ?? "";
-                            if (input != "")
-                            {
-                                configService.Configuration.Email = input;
-                                configService.SaveConfig();
-                            }
+                            shell.Execute($"email \"{input}\"");
                         }
                         Console.ResetColor();
                         Console.Write("press any key to continue");
@@ -108,11 +104,7 @@ namespace TSMPModdedSIILauncher.ConsoleApp
                         Console.ForegroundColor = ConsoleColor.Magenta;
                         {
                             var input = EditText(configService.Configuration.Memory.ToString(), true).Replace(" ", "");
-                            if (input != "")
-                            {
-                                configService.Configuration.Memory = Convert.ToInt32(input);
-                                configService.SaveConfig();
-                            }
+                            if (input != "") shell.Execute($"memory {Convert.ToInt32(input)}");
                         }
                         Console.ResetColor();
                         Console.Write("press any key to continue");
@@ -123,11 +115,7 @@ namespace TSMPModdedSIILauncher.ConsoleApp
                         Console.ForegroundColor = ConsoleColor.Magenta;
                         {
                             var input = EditText(configService.Configuration.JVMArgs);
-                            if (input != "")
-                            {
-                                configService.Configuration.JVMArgs = input;
-                                configService.SaveConfig();
-                            }
+                            shell.Execute($"jvm \"{input}\"");
                         }
                         Console.ResetColor();
                         Console.Write("press any key to continue");
@@ -138,11 +126,7 @@ namespace TSMPModdedSIILauncher.ConsoleApp
                         Console.ForegroundColor = ConsoleColor.Magenta;
                         {
                             var input = EditText(configService.Configuration.ResolutionWidth.ToString(),true).Replace(" ", "");
-                            if (input != "")
-                            {
-                                configService.Configuration.ResolutionWidth = Convert.ToInt32(input);
-                                configService.SaveConfig();
-                            }
+                            if (input != "") shell.Execute($"resolution width {Convert.ToInt32(input)}");
                         }
                         Console.ResetColor();
                         Console.Write("press any key to continue");
@@ -153,11 +137,7 @@ namespace TSMPModdedSIILauncher.ConsoleApp
                         Console.ForegroundColor = ConsoleColor.Magenta;
                         {
                             var input = EditText(configService.Configuration.ResolutionHeight.ToString(), true).Replace(" ", "");
-                            if (input != "")
-                            {
-                                configService.Configuration.ResolutionHeight = Convert.ToInt32(input);
-                                configService.SaveConfig();
-                            }
+                            if (input != "") shell.Execute($"resolution height {Convert.ToInt32(input)}");
                         }
                         Console.ResetColor();
                         Console.Write("press any key to continue");
@@ -169,12 +149,8 @@ namespace TSMPModdedSIILauncher.ConsoleApp
                         Console.ForegroundColor = ConsoleColor.Magenta;
                         {
                             var input = EditText(configService.Configuration.LiveUpdates ? "y" : "n").Replace(" ", "");
-                            if (input == "y")
-                            {
-                                configService.Configuration.LiveUpdates = true;
-                                configService.SaveConfig();
-
-                            }
+                            if (input == "y") shell.Execute($"live_updates true");
+                            else shell.Execute($"live_updates false");
                         }
                         Console.ResetColor();
                         Console.Write("press any key to continue");

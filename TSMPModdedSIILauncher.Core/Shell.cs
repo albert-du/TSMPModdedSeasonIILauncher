@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using CmlLib.Core.Auth;
 
 namespace TSMPModdedSIILauncher.Core
 {
@@ -51,6 +52,8 @@ namespace TSMPModdedSIILauncher.Core
             WriteLineCyan($"Email : string <- \"{email}\"");
 
             config.Email = email;
+
+            Execute("session clear");
             return ShellExecutationResult.Success;
         }
         protected ShellExecutationResult SetMemory (string megabytes)
@@ -244,12 +247,17 @@ namespace TSMPModdedSIILauncher.Core
                 ("update", 2) when ( tokens[1] == "-f" || tokens[1] == "--force") => Update(true),
 
                 ("config", 1) => ((Func<ShellExecutationResult>)(() => { Console.WriteLine($"{JsonSerializer.Serialize( config,new JsonSerializerOptions {WriteIndented = true }  )}\n"); return ShellExecutationResult.Success; }))(),
+                ("config", 2) when (tokens[1] == "clear") => ((Func<ShellExecutationResult>)( () => { ConfigService.ResetSettings(); return ShellExecutationResult.Success; } ) )(),
 
+                ("session", 1) => ((Func<ShellExecutationResult>)(() => { var login = new MLogin(); Console.WriteLine($"{JsonSerializer.Serialize( login.ReadSessionCache(), new JsonSerializerOptions {WriteIndented = true }) }\n"); return ShellExecutationResult.Success; }))(),
+                ("session", 2) when (tokens[1] == "clear") => ((Func<ShellExecutationResult>)(() => { var login = new MLogin(); login.DeleteTokenFile(); Console.WriteLine("Cleared Session Cache\n"); return ShellExecutationResult.Success; }))(),
+                
                 ("uninstall", 1) => ((Func<ShellExecutationResult>)(() => {Console.WriteLine("type 'UNINSTALL' to uninstall the modpack and game"); if (Console.ReadLine() != "UNINSTALL") return ShellExecutationResult.Success; return Uninstall();}))(),
 
                 ("exit", 1) => ShellExecutationResult.Exit,
 
                 ("clear",1) => Execute("shell"),
+                
                 ("shell", 1) => ((Func<ShellExecutationResult>)(() => { Console.Clear(); Start(); return ShellExecutationResult.Exit; }))(),
 
                 ("stop", 1) => ((Func<ShellExecutationResult>)(() => { Environment.Exit(0); return ShellExecutationResult.Success; }))(),

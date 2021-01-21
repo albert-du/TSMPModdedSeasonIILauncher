@@ -120,7 +120,7 @@ namespace TSMPModdedSIILauncher.Core
                 Console.WriteLine("Auto login failed : {0}", response.Result.ToString());
 
                 Console.WriteLine("Input mojang email : ");
-                var email = Console.ReadLine();
+                var email = string.IsNullOrEmpty( configService.Configuration.Email) ? Console.ReadLine() : configService.Configuration.Email;
                 Console.WriteLine("Input mojang password : ");
                 var pw = Console.ReadLine();
 
