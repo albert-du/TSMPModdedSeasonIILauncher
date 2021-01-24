@@ -28,15 +28,15 @@ jobs:
     
     - name: Publish
       run: | 
-        dotnet publish ./TSMPModdedSeasonIILauncher/TSMPModdedSIILauncher.ConsoleApp -r linux-x64 -c Release --self-contained true --no-build /p:PublishSingleFile=true /p:PublishTrimmed=true /p:IncludeNativeLibrariesForSelfExtract=true
-        dotnet publish ./TSMPModdedSeasonIILauncher/TSMPModdedSIILauncher.ConsoleApp -r osx-x64 -c Release --self-contained true --no-build /p:PublishSingleFile=true /p:PublishTrimmed=true /p:IncludeNativeLibrariesForSelfExtract=true
-        dotnet publish ./TSMPModdedSeasonIILauncher/TSMPModdedSIILauncher.ConsoleApp -r win-x64 -c Release --self-contained true --no-build /p:PublishSingleFile=true /p:PublishTrimmed=true /p:IncludeNativeLibrariesForSelfExtract=true
+        dotnet publish ./TSMPModdedSIILauncher.ConsoleApp -r linux-x64 -c Release --self-contained true --no-build /p:PublishSingleFile=true /p:PublishTrimmed=true /p:IncludeNativeLibrariesForSelfExtract=true
+        dotnet publish ./TSMPModdedSIILauncher.ConsoleApp -r osx-x64 -c Release --self-contained true --no-build /p:PublishSingleFile=true /p:PublishTrimmed=true /p:IncludeNativeLibrariesForSelfExtract=true
+        dotnet publish ./TSMPModdedSIILauncher.ConsoleApp -r win-x64 -c Release --self-contained true --no-build /p:PublishSingleFile=true /p:PublishTrimmed=true /p:IncludeNativeLibrariesForSelfExtract=true
         
     - name: Upload Linux Artifact 
       uses: actions/upload-artifact@v2
       with: 
         name: TSMPModdedSIILauncher-Linux
-        path: /home/runner/work/TSMPModdedSeasonIILauncher/TSMPModdedSIILauncher.ConsoleApp/bin/Release/netcoreapp5.0/linux-x64/publish/TSMPModdedSIILauncher
+        path: /home/runner/work/TSMPModdedSIILauncher.ConsoleApp/bin/Release/netcoreapp5.0/linux-x64/publish/TSMPModdedSIILauncher
         retention-days: 30
 
     - name: Upload Windows Artifact 
