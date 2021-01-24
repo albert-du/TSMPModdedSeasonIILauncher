@@ -36,20 +36,20 @@ jobs:
       uses: actions/upload-artifact@v2
       with: 
         name: TSMPModdedSIILauncher-Linux
-        path: /home/runner/work/TSMPModdedSIILauncher.ConsoleApp/bin/Release/netcoreapp5.0/linux-x64/publish/TSMPModdedSIILauncher
+        path: ./TSMPModdedSIILauncher.ConsoleApp/bin/Release/netcoreapp5.0/linux-x64/publish/TSMPModdedSIILauncher
         retention-days: 30
 
     - name: Upload Windows Artifact 
       uses: actions/upload-artifact@v2
       with: 
         name: TSMPModdedSIILauncher-Windowns
-        path: /home/runner/work/TSMPModdedSeasonIILauncher/TSMPModdedSIILauncher.ConsoleApp/bin/Release/netcoreapp5.0/win-x64/publish/TSMPModdedSIILauncher
+        path: ./TSMPModdedSIILauncher.ConsoleApp/bin/Release/netcoreapp5.0/win-x64/publish/TSMPModdedSIILauncher.exe
         retention-days: 30
     
     - name: Upload Mac Artifact 
       uses: actions/upload-artifact@v2
       with: 
         name: TSMPModdedSIILauncher-Mac
-        path: /home/runner/work/TSMPModdedSeasonIILauncher/TSMPModdedSIILauncher.ConsoleApp/bin/Release/netcoreapp5.0/osx-x64/publish/TSMPModdedSIILauncher
+        path: ./TSMPModdedSIILauncher.ConsoleApp/bin/Release/netcoreapp5.0/osx-x64/publish/TSMPModdedSIILauncher
         retention-days: 30
       
