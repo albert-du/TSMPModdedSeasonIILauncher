@@ -42,7 +42,7 @@ jobs:
     - name: Upload Windows Artifact 
       uses: actions/upload-artifact@v2
       with: 
-        name: TSMPModdedSIILauncher-Windowns
+        name: TSMPModdedSIILauncher-Windows
         path: ./TSMPModdedSIILauncher.ConsoleApp/bin/Release/netcoreapp5.0/win-x64/publish/
         retention-days: 30
     
