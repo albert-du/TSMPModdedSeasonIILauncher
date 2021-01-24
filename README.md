@@ -1,5 +1,8 @@
 # TSMPModdedSeasonIILauncher
+![Build](https://github.com/albert-du/TSMPModdedSeasonIILauncher/workflows/Build/badge.svg)
+
 Minecraft Launcher for the **[Titanic SMP Modded Season II Modpack](https://github.com/DabbingEevee/TSMP_Modded_Season_II)**
+
 
 ## How to use
 Newest Releases **[here]()** 
