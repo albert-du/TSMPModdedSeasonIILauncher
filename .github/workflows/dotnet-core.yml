@@ -83,6 +83,6 @@ jobs:
         with:
           name: TSMPModdedSIILauncher-MacApp
           path: TSMPModdedSIILauncher-MacApp.dmg
-          retension-days: 30
+          retention-days: 30
           
     
