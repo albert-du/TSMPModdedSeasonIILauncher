@@ -31,7 +31,8 @@ jobs:
         dotnet publish ./TSMPModdedSIILauncher.ConsoleApp -r linux-x64 -c Release --self-contained true /p:PublishSingleFile=true /p:PublishTrimmed=true /p:IncludeNativeLibrariesForSelfExtract=true
         dotnet publish ./TSMPModdedSIILauncher.ConsoleApp -r osx-x64 -c Release --self-contained true /p:PublishSingleFile=true /p:PublishTrimmed=true /p:IncludeNativeLibrariesForSelfExtract=true
         dotnet publish ./TSMPModdedSIILauncher.ConsoleApp -r win-x64 -c Release --self-contained true /p:PublishSingleFile=true /p:PublishTrimmed=true /p:IncludeNativeLibrariesForSelfExtract=true
-        
+        chmod +x ./TSMPModdedSIILauncher.ConsoleApp/bin/Release/netcoreapp5.0/linux-x64/publish/TSMPModdedSIILauncher
+        chmod +x ./TSMPModdedSIILauncher.ConsoleApp/bin/Release/netcoreapp5.0/osx-x64/publish/TSMPModdedSIILauncher
     - name: Upload Linux Artifact 
       uses: actions/upload-artifact@v2
       with: 
