@@ -11,6 +11,11 @@ namespace TSMPModdedSIILauncher.Core
 {
     public class Launcher
     {
+        /// <summary>
+        /// Ensure the directory exists and if it doesn't, create it
+        /// </summary>
+        /// <param name="path">path to check and possibly create</param>
+        /// <returns>path</returns>
         public static string Dir(string path)
         {
             var p = Path.GetFullPath(path);
@@ -20,18 +25,19 @@ namespace TSMPModdedSIILauncher.Core
             return p;
         }
 
-        private string _password = "";
-
         private ConfigService configService;
-
-        public string Password { private get => _password; set => _password = value; }
 
         public Launcher(ConfigService configService)
         {
             this.configService = configService;
 
         }
-        public void LaunchGame()
+        
+        /// <summary>
+        /// Launch minecraft
+        /// </summary>
+        /// <param name="session"></param>
+        public void LaunchGame(MSession session)
         {
             // Initializing Launcher
 
@@ -61,7 +67,7 @@ namespace TSMPModdedSIILauncher.Core
             var launchOption = new MLaunchOption
             {
                 MaximumRamMb = configService.Configuration.Memory,
-                Session = Login(),
+                Session = session,
                 ScreenHeight = configService.Configuration.ResolutionHeight,
                 ScreenWidth = configService.Configuration.ResolutionWidth,
                 JVMArguments = configService.Configuration.JVMArgs.Split(" ")
@@ -103,38 +109,40 @@ namespace TSMPModdedSIILauncher.Core
             return;
         }
 
-        protected MSession Login()
+        public static MSession AutoLogin()
         {
-            //https://github.com/AlphaBs/CmlLib.Core/blob/v3.0.0/CmlLibCoreSample/Program.cs
-            var login = new MLogin();
-
-            // TryAutoLogin() read login cache file and check validation.
+            MLogin login = new();
             // if cached session is invalid, it refresh session automatically.
             // but refreshing session doesn't always succeed, so you have to handle this.
             Console.WriteLine("Try Auto login");
             Console.WriteLine(login.SessionCacheFilePath);
             var response = login.TryAutoLogin();
 
-            if (!response.IsSuccess) // cached session is invalid and failed to refresh token
+            Console.WriteLine("Auto login failed : {0}", response.Result.ToString());
+            return response.Session;
+
+        }
+
+        /// <summary>
+        /// Creates a Minecraft login
+        /// </summary>
+        /// <param name="email">Mojang Email</param>
+        /// <param name="password">Mojang Password</param>
+        /// <returns>null if login failed, an Minecraft session otherwise</returns>
+        public static MSession Login(string email, string password)
+        {
+            //https://github.com/AlphaBs/CmlLib.Core/blob/v3.0.0/CmlLibCoreSample/Program.cs
+            MLogin login = new();
+            
+            var response = login.Authenticate(email, password);
+
+            if (!response.IsSuccess)
             {
-                Console.WriteLine("Auto login failed : {0}", response.Result.ToString());
-
-                Console.WriteLine("Input mojang email : ");
-                var email = string.IsNullOrEmpty( configService.Configuration.Email) ? Console.ReadLine() : configService.Configuration.Email;
-                Console.WriteLine("Input mojang password : ");
-                var pw = Console.ReadLine();
-
-                response = login.Authenticate(email, pw);
-
-                if (!response.IsSuccess)
-                {
-                    // session.Message contains detailed error message. it can be null or empty string.
-                    Console.WriteLine("failed to login. {0} : {1}", response.Result, response.ErrorMessage);
-                    Console.ReadLine();
-                    Environment.Exit(0);
-                    return null;
-                }
+                // session.Message contains detailed error message. it can be null or empty string.
+                Console.WriteLine("failed to login. {0} : {1}", response.Result, response.ErrorMessage);
+                return null;
             }
+
 
             return response.Session;
         }

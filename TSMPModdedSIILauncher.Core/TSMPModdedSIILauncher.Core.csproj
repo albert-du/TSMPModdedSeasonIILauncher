@@ -2,11 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp5.0</TargetFramework>
-    <PublishSingleFile>true</PublishSingleFile>
-    <Configuration>Release</Configuration>
-    <PublishSingleFile>true</PublishSingleFile>
-    <PublishTrimmed>true</PublishTrimmed>
-    <!--dotnet publish -r <RID> /p:IncludeNativeLibrariesForSelfExtract=true-->
   </PropertyGroup>
 
   <ItemGroup>

@@ -189,6 +189,9 @@ namespace TSMPModdedSIILauncher.ConsoleApp
 
             // Countdown Timer
             var seconds = 10;
+
+            bool skipAutoLogin = false;
+
             bool exited = false;
             while (!exited)
             {
@@ -201,6 +204,7 @@ namespace TSMPModdedSIILauncher.ConsoleApp
                 Console.ResetColor();
                 Console.WriteLine("Press 'Esc' to abort launch     ");
                 Console.WriteLine("Press 'Space' to skip countdown   ");
+                Console.WriteLine(skipAutoLogin ? "Auto Login Skipped                  " : "Press 'l' to skip auto-login    ");
                 Console.WriteLine("Press 's' to open shell    ");
                 Console.WriteLine("Press 'Enter' to config launch(er) settings   ");
                 for (int i = 0; i < 20; i++)
@@ -223,6 +227,9 @@ namespace TSMPModdedSIILauncher.ConsoleApp
                                 shell.Start();
                                 Console.Clear();
                                 break;
+                            case ConsoleKey.L:
+                                skipAutoLogin = true;
+                                break;
                         }
 
                     }
@@ -230,7 +237,7 @@ namespace TSMPModdedSIILauncher.ConsoleApp
                     Thread.Sleep(50);
                 }
                 seconds -= 1;
-                try { Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop - 5); }
+                try { Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop - 6); }
                 catch { }
                 
             }
@@ -259,11 +266,29 @@ namespace TSMPModdedSIILauncher.ConsoleApp
                 Console.WriteLine("Removing optifine");
                 optifineService.RemoveOptifine();
             }
+
             // Launch
+            var session = skipAutoLogin ? null : Launcher.AutoLogin();
+            while (session is null)
+            {
+                Console.WriteLine("Input mojang email : ");
+                var email = string.IsNullOrEmpty(configService.Configuration.Email) ? Console.ReadLine() : configService.Configuration.Email;
+                Console.WriteLine("Input mojang password : ");
+                var pw = Console.ReadLine();
+                Console.SetCursorPosition(1, 0);
+                for (int i = 0; i <= pw.Length; i++)
+                    Console.Write("*");
+                Console.WriteLine();
 
-            launcher.LaunchGame();
+                session = Launcher.Login(email, pw);
+                if (session is not null)
+                {
+                    launcher.LaunchGame(session);
 
-            Console.ReadKey();
+                    Console.ReadKey();
+                    break;
+                }
+            }
         }
     }
 }
