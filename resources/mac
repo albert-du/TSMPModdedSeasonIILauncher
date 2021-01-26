@@ -2,4 +2,4 @@
 
 BASEDIR=$(dirname "$0")
 
-open -a Terminal "$BASEDIR"/program
+open -a Terminal "$BASEDIR"/TSMPModdedSeasonII

@@ -71,9 +71,9 @@ jobs:
       - name: Create .app
         run: | 
           mkdir -p output/TSMPModdedSIILauncher.app/Contents/MacOS
-          mv TSMPModdedSIILauncher output/TSMPModdedSIILauncher.app/Contents/MacOS/program
+          mv TSMPModdedSIILauncher output/TSMPModdedSIILauncher.app/Contents/MacOS/TSMPModdedSeasonII
           mv ./resources/mac output/TSMPModdedSIILauncher.app/Contents/MacOS/TSMPModdedSIILauncher
-          chmod +x output/TSMPModdedSIILauncher.app/Contents/MacOS/program
+          chmod +x output/TSMPModdedSIILauncher.app/Contents/MacOS/TSMPModdedSeasonII
           chmod +x output/TSMPModdedSIILauncher.app/Contents/MacOS/TSMPModdedSIILauncher
       - name: Create DMG
         run: |
