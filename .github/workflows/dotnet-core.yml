@@ -58,4 +58,30 @@ jobs:
           ./TSMPModdedSIILauncher.ConsoleApp/bin/Release/netcoreapp5.0/osx-x64/publish/
           !./TSMPModdedSIILauncher.ConsoleApp/bin/Release/netcoreapp5.0/osx-x64/publish/*.pdb
         retention-days: 30
+  PackageMacApp:
+    needs: [Build]
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download Mac Binary
+        uses: actions/download-artifact@v2
+        with:
+          name: TSMPModdedSIILauncher-Mac
       
+      - name: Create .app
+        run: | 
+          mkdir -p output/TSMPModdedSIILauncher.app/Contents/MacOS
+          mv TSMPModdedSIILauncher output/TSMPModdedSIILauncher.app/Contents/MacOS/program
+          mv ./resources/mac output/TSMPModdedSIILauncher.app/Contents/MacOS/TSMPModdedSIILauncher
+          chmod +x output/TSMPModdedSIILauncher.app/Contents/MacOS/program
+          chmod +x output/TSMPModdedSIILauncher.app/Contents/MacOS/TSMPModdedSIILauncher
+      - name: Create DMG
+        run: |
+          hdiutil create -format UDZO -srcfolder output TSMPModdedSIILauncher-MacApp.dmg
+      - name: Upload Artifact for Mac app
+        uses: actions/upload-artifact@v2
+        with:
+          name: TSMPModdedSIILauncher-MacApp
+          path: TSMPModdedSIILauncher-MacApp.dmg
+          
+    
