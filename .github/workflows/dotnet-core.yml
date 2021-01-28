@@ -10,7 +10,7 @@ on:
           required: true
         releaseName:
           description: 'name of the release'  
-          required: true]
+          required: true
 
 jobs:
   Build:
