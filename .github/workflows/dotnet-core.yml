@@ -156,7 +156,7 @@ jobs:
 
       - name: Clean file
         run: | 
-          rm TSMPModdedSIILauncher
+          rm TSMPModdedSIILauncher.exe
 
 
       - name: Upload Linux Release Asset
