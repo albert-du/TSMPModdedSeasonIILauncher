@@ -111,10 +111,10 @@ jobs:
           name: TSMPModdedSIILauncher-Windows
       - name: Setup RCEdit
         run: |
-        curl -o rcedit.exe https://github.com/electron/rcedit/releases/download/v1.1.1/rcedit-x64.exe
+          curl -o rcedit.exe https://github.com/electron/rcedit/releases/download/v1.1.1/rcedit-x64.exe
       - name: Add Icon 
         run: |
-        rcedit TSMPModdedSIILauncher.exe --set-icon ./Resources/icon.ico
+          rcedit TSMPModdedSIILauncher.exe --set-icon ./Resources/icon.ico
       - name: Delete Old Artifact
         uses: geekyeggo/delete-artifact@v1
         with:
@@ -148,7 +148,7 @@ jobs:
         with:
           name: TSMPModdedSIILauncher-Windows
 
-        uses: actions/upload-release-asset@v1
+      - uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -156,7 +156,8 @@ jobs:
           asset_path: TSMPModdedSIILauncher.exe
           asset_name: TSMPModdedSIILauncher-Windows
 
-        run: |
+      - name: Clean file
+        run: | 
           rm TSMPModdedSIILauncher
 
 
@@ -166,14 +167,14 @@ jobs:
         with:
           name: TSMPModdedSIILauncher-Linux
 
-        uses: actions/upload-release-asset@v1
+      - uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: TSMPModdedSIILauncher
           asset_name: TSMPModdedSIILauncher-Linux
-
+      - name: Clean file
         run: |
           rm TSMPModdedSIILauncher
 
@@ -182,22 +183,24 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: TSMPModdedSIILauncher-Mac
-
-        uses: actions/upload-release-asset@v1
+      
+      - uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: TSMPModdedSIILauncher
           asset_name: TSMPModdedSIILauncher-Mac
+        
+      - name: Clean file
         run: |
           rm TSMPModdedSIILauncher
 
-        uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v2
         with:
           name: TSMPModdedSIILauncher-MacApp
 
-        uses: actions/upload-release-asset@v1
+      - uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
