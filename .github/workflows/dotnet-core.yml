@@ -152,6 +152,7 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: TSMPModdedSIILauncher.exe
           asset_name: TSMPModdedSIILauncher-Windows
+          asset_content_type: application/octet-stream
 
       - name: Clean file
         run: | 
@@ -171,6 +172,8 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: TSMPModdedSIILauncher
           asset_name: TSMPModdedSIILauncher-Linux
+          asset_content_type: application/octet-stream
+          
       - name: Clean file
         run: |
           rm TSMPModdedSIILauncher
@@ -188,6 +191,7 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: TSMPModdedSIILauncher
           asset_name: TSMPModdedSIILauncher-Mac
+          asset_content_type: application/octet-stream
         
       - name: Clean file
         run: |
@@ -204,5 +208,5 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: TSMPModdedSIILauncher-MacApp.dmg
           asset_name: TSMPModdedSIILauncher-MacApp
-
+          asset_content_type: application/octet-stream
 
