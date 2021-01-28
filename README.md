@@ -5,7 +5,7 @@ Minecraft Launcher for the **[Titanic SMP Modded Season II Modpack](https://gith
 
 
 ## How to use
-Newest Releases **[here]()** 
+Newest Builds **[here](https://nightly.link/albert-du/TSMPModdedSeasonIILauncher/workflows/dotnet-core/master)** 
 
 **[Wiki]()** 
 
