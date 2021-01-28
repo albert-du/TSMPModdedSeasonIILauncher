@@ -114,7 +114,7 @@ jobs:
           curl -o rcedit.exe https://github.com/electron/rcedit/releases/download/v1.1.1/rcedit-x64.exe
       - name: Add Icon 
         run: |
-          rcedit TSMPModdedSIILauncher.exe --set-icon ./Resources/icon.ico
+          rcedit.exe TSMPModdedSIILauncher.exe --set-icon ./Resources/icon.ico
       - name: Delete Old Artifact
         uses: geekyeggo/delete-artifact@v1
         with:
