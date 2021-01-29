@@ -30,5 +30,44 @@ namespace TSMPModdedSIILauncher.Core
 
         [JsonIgnore]
         public string ModsPath { get => Path.Combine(ModpackPath, "mods"); }
+
+        private static readonly string configPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSMPModdedSeasonII", "config.json");
+
+
+        public void Save()
+        {
+            // check if directory exists, if not, create
+            if (!Directory.Exists(Path.GetDirectoryName(configPath))) Directory.CreateDirectory(Path.GetDirectoryName(configPath));
+
+            var jsonString = JsonSerializer.Serialize(this);
+            File.WriteAllText(configPath, jsonString);
+        }
+
+        public static Configuration LoadConfiguration()
+        {
+            Configuration config;
+            try
+            {
+                var jsonString = File.ReadAllText(configPath);
+                config = JsonSerializer.Deserialize<Configuration>(jsonString);
+            }
+            catch (System.IO.DirectoryNotFoundException)
+            {
+                config = new Configuration();
+                config.Save();
+            }
+            catch (System.IO.FileNotFoundException)
+            {
+                config = new Configuration();
+                config.Save();
+            }
+            return config;
+        }
+        public static void ResetSettings(Configuration config)
+        {
+            config = new Configuration();
+            config.Save();
+        }
+
     }
 }

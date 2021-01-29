@@ -25,11 +25,11 @@ namespace TSMPModdedSIILauncher.Core
             return p;
         }
 
-        private ConfigService configService;
+        private Configuration configuration;
 
-        public Launcher(ConfigService configService)
+        public Launcher(Configuration configuration)
         {
-            this.configService = configService;
+            this.configuration = configuration;
 
         }
         
@@ -47,8 +47,8 @@ namespace TSMPModdedSIILauncher.Core
 
             // You can set this path to what you want like this :
             // var path = Environment.GetEnvironmentVariable("APPDATA") + "\\.mylauncher";
-            var gamePath = configService.Configuration.GamePath;
-            var game = new MinecraftPath(configService.Configuration.ModpackPath)
+            var gamePath = configuration.GamePath;
+            var game = new MinecraftPath(configuration.ModpackPath)
             {
                 Library = Dir(gamePath + "/libraries"),
                 Versions = Dir(gamePath + "/versions"),
@@ -66,11 +66,11 @@ namespace TSMPModdedSIILauncher.Core
 
             var launchOption = new MLaunchOption
             {
-                MaximumRamMb = configService.Configuration.Memory,
+                MaximumRamMb = configuration.Memory,
                 Session = session,
-                ScreenHeight = configService.Configuration.ResolutionHeight,
-                ScreenWidth = configService.Configuration.ResolutionWidth,
-                JVMArguments = configService.Configuration.JVMArgs.Split(" ")
+                ScreenHeight = configuration.ResolutionHeight,
+                ScreenWidth = configuration.ResolutionWidth,
+                JVMArguments = configuration.JVMArgs.Split(" ")
                 // More options:
                 // https://github.com/AlphaBs/CmlLib.Core/wiki/MLaunchOption
             };

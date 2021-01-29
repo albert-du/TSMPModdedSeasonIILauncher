@@ -9,7 +9,7 @@ namespace TSMPModdedSIILauncher.ConsoleApp
     class Program
     {
 
-        private static ConfigService configService;
+        private static Configuration configuration;
         private static ModpackService modpackService;
         private static Launcher launcher;
         private static Shell shell;
@@ -66,7 +66,7 @@ namespace TSMPModdedSIILauncher.ConsoleApp
             return true;
         }
 
-        private static void OpenConfigMenu(ConfigService configService)
+        private static void OpenConfigMenu()
         {
             char userInput;
             do
@@ -92,7 +92,7 @@ namespace TSMPModdedSIILauncher.ConsoleApp
                         Console.WriteLine("Default Email Address:");
                         Console.ForegroundColor = ConsoleColor.Magenta;
                         {
-                            var input = EditText(configService.Configuration.Email).Replace(" ", "") ?? "";
+                            var input = EditText(configuration.Email).Replace(" ", "") ?? "";
                             shell.Execute($"email \"{input}\"");
                         }
                         Console.ResetColor();
@@ -103,7 +103,7 @@ namespace TSMPModdedSIILauncher.ConsoleApp
                         Console.WriteLine("Memory Mb :");
                         Console.ForegroundColor = ConsoleColor.Magenta;
                         {
-                            var input = EditText(configService.Configuration.Memory.ToString(), true).Replace(" ", "");
+                            var input = EditText(configuration.Memory.ToString(), true).Replace(" ", "");
                             if (input != "") shell.Execute($"memory {Convert.ToInt32(input)}");
                         }
                         Console.ResetColor();
@@ -114,7 +114,7 @@ namespace TSMPModdedSIILauncher.ConsoleApp
                         Console.WriteLine("JVM arguments:");
                         Console.ForegroundColor = ConsoleColor.Magenta;
                         {
-                            var input = EditText(configService.Configuration.JVMArgs);
+                            var input = EditText(configuration.JVMArgs);
                             shell.Execute($"jvm \"{input}\"");
                         }
                         Console.ResetColor();
@@ -125,7 +125,7 @@ namespace TSMPModdedSIILauncher.ConsoleApp
                         Console.WriteLine("Resolution Width:");
                         Console.ForegroundColor = ConsoleColor.Magenta;
                         {
-                            var input = EditText(configService.Configuration.ResolutionWidth.ToString(),true).Replace(" ", "");
+                            var input = EditText(configuration.ResolutionWidth.ToString(),true).Replace(" ", "");
                             if (input != "") shell.Execute($"resolution width {Convert.ToInt32(input)}");
                         }
                         Console.ResetColor();
@@ -136,7 +136,7 @@ namespace TSMPModdedSIILauncher.ConsoleApp
                         Console.WriteLine("Resolution Height:");
                         Console.ForegroundColor = ConsoleColor.Magenta;
                         {
-                            var input = EditText(configService.Configuration.ResolutionHeight.ToString(), true).Replace(" ", "");
+                            var input = EditText(configuration.ResolutionHeight.ToString(), true).Replace(" ", "");
                             if (input != "") shell.Execute($"resolution height {Convert.ToInt32(input)}");
                         }
                         Console.ResetColor();
@@ -148,7 +148,7 @@ namespace TSMPModdedSIILauncher.ConsoleApp
                         Console.WriteLine("y to use live updates, n to not");
                         Console.ForegroundColor = ConsoleColor.Magenta;
                         {
-                            var input = EditText(configService.Configuration.LiveUpdates ? "y" : "n").Replace(" ", "");
+                            var input = EditText(configuration.LiveUpdates ? "y" : "n").Replace(" ", "");
                             if (input == "y") shell.Execute($"live_updates true");
                             else shell.Execute($"live_updates false");
                         }
@@ -162,7 +162,7 @@ namespace TSMPModdedSIILauncher.ConsoleApp
                         if (Console.ReadKey(true).KeyChar == 'y')
                         {
                             Console.WriteLine("Resetting Settings");
-                            configService.ResetSettings();
+                            Configuration.ResetSettings(configuration);
                         }
                         break;
                 }
@@ -174,11 +174,11 @@ namespace TSMPModdedSIILauncher.ConsoleApp
 
         static void Main(string[] args)
         {
-            configService   =   new();
-            optifineService =   new(configService.Configuration);
-            modpackService  =   new(configService);
-            launcher        =   new(configService);
-            shell           =   new(configService, modpackService, launcher,optifineService);
+            configuration   =   Configuration.LoadConfiguration();
+            optifineService =   new(configuration);
+            modpackService  =   new(configuration);
+            launcher        =   new(configuration);
+            shell           =   new(configuration, modpackService, launcher,optifineService);
 
             Console.ResetColor();
 
@@ -218,7 +218,7 @@ namespace TSMPModdedSIILauncher.ConsoleApp
                             case ConsoleKey.Escape:
                                 return;
                             case ConsoleKey.Enter:
-                                OpenConfigMenu(configService);
+                                OpenConfigMenu();
                                 break;
                             case ConsoleKey.Spacebar:
                                 exited = true;
@@ -254,13 +254,13 @@ namespace TSMPModdedSIILauncher.ConsoleApp
                 }
 
             } ).GetAwaiter().GetResult();
-            if (!optifineService.OptifineInstalled() && configService.Configuration.Optifine)
+            if (!optifineService.OptifineInstalled() && configuration.Optifine)
             {
                 // install
                 Console.WriteLine("Installing optifine");
                 optifineService.InstallOptifine();
             }
-            else if (optifineService.OptifineInstalled() && !configService.Configuration.Optifine)
+            else if (optifineService.OptifineInstalled() && !configuration.Optifine)
             {
                 //remove
                 Console.WriteLine("Removing optifine");
@@ -272,7 +272,7 @@ namespace TSMPModdedSIILauncher.ConsoleApp
             while (session is null)
             {
                 Console.WriteLine("Input mojang email : ");
-                var email = string.IsNullOrEmpty(configService.Configuration.Email) ? Console.ReadLine() : configService.Configuration.Email;
+                var email = string.IsNullOrEmpty(configuration.Email) ? Console.ReadLine() : configuration.Email;
                 Console.WriteLine("Input mojang password : ");
                 var pw = Console.ReadLine();
                 Console.SetCursorPosition(1, 0);

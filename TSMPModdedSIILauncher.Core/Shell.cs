@@ -17,8 +17,6 @@ namespace TSMPModdedSIILauncher.Core
     }
     public class Shell
     {
-
-        public ConfigService ConfigService {get; init; }
         public ModpackService ModpackService { get; init; }
         public OptifineService OptifineService { get; init; }
         public Launcher Launcher { get; init; }
@@ -38,13 +36,12 @@ namespace TSMPModdedSIILauncher.Core
             Console.ResetColor();
         }
 
-        public Shell(ConfigService configService, ModpackService modpackService, Launcher launcher, OptifineService optifineService)
+        public Shell(Configuration configuration, ModpackService modpackService, Launcher launcher, OptifineService optifineService)
         {
-            ConfigService = configService;
             ModpackService = modpackService;
             OptifineService = optifineService;
             Launcher = launcher;
-            config = ConfigService.Configuration;
+            config = configuration;
         }
 
         protected ShellExecutationResult SetEmail(string email)
@@ -247,7 +244,7 @@ namespace TSMPModdedSIILauncher.Core
                 ("update", 2) when ( tokens[1] == "-f" || tokens[1] == "--force") => Update(true),
 
                 ("config", 1) => ((Func<ShellExecutationResult>)(() => { Console.WriteLine($"{JsonSerializer.Serialize( config,new JsonSerializerOptions {WriteIndented = true }  )}\n"); return ShellExecutationResult.Success; }))(),
-                ("config", 2) when (tokens[1] == "clear") => ((Func<ShellExecutationResult>)( () => { ConfigService.ResetSettings(); return ShellExecutationResult.Success; } ) )(),
+                ("config", 2) when (tokens[1] == "clear") => ((Func<ShellExecutationResult>)( () => { Configuration.ResetSettings(config); return ShellExecutationResult.Success; } ) )(),
 
                 ("session", 1) => ((Func<ShellExecutationResult>)(() => { var login = new MLogin(); Console.WriteLine($"{JsonSerializer.Serialize( login.ReadSessionCache(), new JsonSerializerOptions {WriteIndented = true }) }\n"); return ShellExecutationResult.Success; }))(),
                 ("session", 2) when (tokens[1] == "clear") => ((Func<ShellExecutationResult>)(() => { var login = new MLogin(); login.DeleteTokenFile(); Console.WriteLine("Cleared Session Cache\n"); return ShellExecutationResult.Success; }))(),
@@ -265,7 +262,7 @@ namespace TSMPModdedSIILauncher.Core
                 (_,1) => ((Func<ShellExecutationResult>)(() => { WriteLineRed($"Unknown Command: \"{tokens[0]}\""); return ShellExecutationResult.Failure; }))(),
                 _ => ShellExecutationResult.Failure,
             };
-            ConfigService.SaveConfig();
+            config.Save();
             return response;
         }
 

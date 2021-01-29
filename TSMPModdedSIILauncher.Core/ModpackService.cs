@@ -20,20 +20,20 @@ namespace TSMPModdedSIILauncher.Core
 
         private GitHubClient githubClient = new GitHubClient(new ProductHeaderValue("epic-thing"));
 
-        private ConfigService configService;
+        private Configuration configuration;
 
         private static string GetNumbers(string input) => new string(input.Where(c => char.IsDigit(c) || c == '.' ).ToArray());
 
         private async Task<installType> getInstallTypeAsync()
         {
-            var filePath = Path.Combine(configService.Configuration.MainPath, "install_type.txt");
+            var filePath = Path.Combine(configuration.MainPath, "install_type.txt");
             if (File.Exists(filePath))
                 return (await File.ReadAllLinesAsync(filePath))[0] == "live" ? installType.Live : installType.Release;
             else return installType.None;
         }
         private async Task<decimal> getInstallVersionAsync()
         {
-            var filePath = Path.Combine(configService.Configuration.MainPath, "install_type.txt");
+            var filePath = Path.Combine(configuration.MainPath, "install_type.txt");
             if (File.Exists(filePath))
                 return Convert.ToDecimal(GetNumbers((await File.ReadAllLinesAsync(filePath))[1]));
             else return -1;
@@ -42,12 +42,12 @@ namespace TSMPModdedSIILauncher.Core
         public async Task DownloadAsync()
         {
             WriteLine("Preparing to Download");
-            var zipPath = Path.Combine(configService.Configuration.MainPath, "modpack.zip");
+            var zipPath = Path.Combine(configuration.MainPath, "modpack.zip");
             if (File.Exists(zipPath)) File.Delete(zipPath);
             string url;
-            if (configService.Configuration.LiveUpdates)
+            if (configuration.LiveUpdates)
             {
-                url = $"https://github.com/{configService.Configuration.RepoOwner}/{configService.Configuration.RepoName}/archive/{configService.Configuration.Branch}.zip";
+                url = $"https://github.com/{configuration.RepoOwner}/{configuration.RepoName}/archive/{configuration.Branch}.zip";
             }
             else
             {
@@ -63,7 +63,7 @@ namespace TSMPModdedSIILauncher.Core
             
             TimeSpan ts = stopwatch.Elapsed;
 
-            if (!Directory.Exists(configService.Configuration.MainPath)) Directory.CreateDirectory(configService.Configuration.MainPath);
+            if (!Directory.Exists(configuration.MainPath)) Directory.CreateDirectory(configuration.MainPath);
             using var destination = File.Create(zipPath);
             await response.Content.CopyToAsync(destination);
             WriteLine($"Download Complete in {ts.Minutes}:{ts.Seconds}" );
@@ -77,9 +77,9 @@ namespace TSMPModdedSIILauncher.Core
             string[] excludedPaths = { "saves", "resourcepacks", "crash-reports", "shaderpacks", "screenshots", "options", "logs", "options.txt","optionsshader.txt","optionsof.txt" };
             string[] unnecessaryPaths = { ".github", "modules" };
             WriteLine("Installing");
-            var zipPath = Path.Combine(configService.Configuration.MainPath, "modpack.zip");
+            var zipPath = Path.Combine(configuration.MainPath, "modpack.zip");
             var tempPath = Path.Combine(Path.GetTempPath(), "TSMPModdedSII");
-            var installPath = Path.Combine(configService.Configuration.MainPath, "modpack");
+            var installPath = Path.Combine(configuration.MainPath, "modpack");
             using var zipArchive = ZipFile.OpenRead(zipPath);
             if (Directory.Exists(tempPath)) Directory.Delete(tempPath, true);
             ZipFile.ExtractToDirectory(zipPath, tempPath);
@@ -112,11 +112,11 @@ namespace TSMPModdedSIILauncher.Core
 
             if (Directory.Exists(tempPath)) Directory.Delete(tempPath, true);
             //write version
-            var versionFile = Path.Combine(configService.Configuration.MainPath, "install_type.txt");
+            var versionFile = Path.Combine(configuration.MainPath, "install_type.txt");
             if (File.Exists(versionFile)) File.Delete(versionFile);
             File.WriteAllLines(versionFile, new string[] {
-                configService.Configuration.LiveUpdates ? "live" : "release",
-                configService.Configuration.LiveUpdates ?     File.ReadAllLines(Path.Combine(configService.Configuration.MainPath, "modpack", "version.txt"))[0]   : GetNumbers((await GetAllReleasesAsync())[0].TagName)
+                configuration.LiveUpdates ? "live" : "release",
+                configuration.LiveUpdates ?     File.ReadAllLines(Path.Combine(configuration.MainPath, "modpack", "version.txt"))[0]   : GetNumbers((await GetAllReleasesAsync())[0].TagName)
             });
 
             WriteLine("Installation complete");
@@ -127,7 +127,7 @@ namespace TSMPModdedSIILauncher.Core
         {
             var installedType = await getInstallTypeAsync();
             var installedVersion = await getInstallVersionAsync();
-            var selectedType = configService.Configuration.LiveUpdates ? installType.Live : installType.Release;
+            var selectedType = configuration.LiveUpdates ? installType.Live : installType.Release;
 
             var newestVersion = selectedType == installType.Release? Convert.ToDecimal(GetNumbers((await GetAllReleasesAsync())[0].TagName)) : (await GetLatestLiveVersionAsync()) ;
             if ( (installedType == installType.None) || ( selectedType != installedType) )
@@ -138,7 +138,7 @@ namespace TSMPModdedSIILauncher.Core
             else if (newestVersion != installedVersion)
             {
                 WriteLine($"Installed Version: {installedVersion} | {new DateTime((long)installedVersion, DateTimeKind.Utc ).ToLocalTime()}" );
-                WriteLine($"Latest Version: {newestVersion}" + (configService.Configuration.LiveUpdates ? $" | {new DateTime(Convert.ToInt64(await GetLatestLiveVersionAsync()), DateTimeKind.Utc).ToLocalTime() } " : ""));
+                WriteLine($"Latest Version: {newestVersion}" + (configuration.LiveUpdates ? $" | {new DateTime(Convert.ToInt64(await GetLatestLiveVersionAsync()), DateTimeKind.Utc).ToLocalTime() } " : ""));
 
                 WriteLine("Would You Like to install the latest version? (y,n)");
                 if (ReadKey(true).KeyChar == 'y')
@@ -157,18 +157,18 @@ namespace TSMPModdedSIILauncher.Core
 
         public void Uninstall()
         {
-            if (Directory.Exists(configService.Configuration.MainPath)) Directory.Delete(configService.Configuration.MainPath, true);
+            if (Directory.Exists(configuration.MainPath)) Directory.Delete(configuration.MainPath, true);
         }
 
-        public ModpackService (ConfigService configService)
+        public ModpackService (Configuration configuration)
         {
-            this.configService = configService;
+            this.configuration = configuration;
             httpClient.Timeout = TimeSpan.FromMinutes(5);
         }
 
-        public Task<IReadOnlyList<Release>> GetAllReleasesAsync() => githubClient.Repository.Release.GetAll(configService.Configuration.RepoOwner, configService.Configuration.RepoName);
+        public Task<IReadOnlyList<Release>> GetAllReleasesAsync() => githubClient.Repository.Release.GetAll(configuration.RepoOwner, configuration.RepoName);
 
-        public async Task<decimal> GetLatestLiveVersionAsync() => Convert.ToDecimal( (await githubClient.Repository.Content.GetAllContentsByRef(configService.Configuration.RepoOwner, configService.Configuration.RepoName, "version.txt",configService.Configuration.Branch))[0].Content.Split('\n')[0] );
+        public async Task<decimal> GetLatestLiveVersionAsync() => Convert.ToDecimal( (await githubClient.Repository.Content.GetAllContentsByRef(configuration.RepoOwner, configuration.RepoName, "version.txt", configuration.Branch))[0].Content.Split('\n')[0] );
 
         private static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
         {
