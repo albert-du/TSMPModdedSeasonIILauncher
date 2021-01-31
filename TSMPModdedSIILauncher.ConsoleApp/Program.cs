@@ -275,20 +275,15 @@ namespace TSMPModdedSIILauncher.ConsoleApp
                 var email = string.IsNullOrEmpty(configuration.Email) ? Console.ReadLine() : configuration.Email;
                 Console.WriteLine("Input mojang password : ");
                 var pw = Console.ReadLine();
-                Console.SetCursorPosition(1, 0);
+                Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop -1);
                 for (int i = 0; i <= pw.Length; i++)
                     Console.Write("*");
                 Console.WriteLine();
-
                 session = Launcher.Login(email, pw);
-                if (session is not null)
-                {
-                    launcher.LaunchGame(session);
+            }            
+            launcher.LaunchGame(session);
 
-                    Console.ReadKey();
-                    break;
-                }
-            }
+            Console.ReadKey();
         }
     }
 }
