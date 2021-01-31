@@ -206,7 +206,7 @@ namespace TSMPModdedSIILauncher.Core
             ShellExecutationResult response = (tokens[0], tokens.Count ) switch
             {
 
-                ("email", 1)        => PrintResult($"Branch : string = \"{config.Email}\""),
+                ("email", 1)        => PrintResult($"Email : string = \"{config.Email}\""),
                 ("email", 2)        => SetEmail(tokens[1]),
 
                 ("memory", 1)       => PrintResult($"Email : int<MB> = \"{config.Memory}\""),
