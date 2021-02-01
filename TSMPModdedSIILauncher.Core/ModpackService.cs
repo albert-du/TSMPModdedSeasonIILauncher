@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Octokit;
-using static System.Console;
 
 namespace TSMPModdedSIILauncher.Core
 {
@@ -22,8 +21,10 @@ namespace TSMPModdedSIILauncher.Core
 
         private Configuration configuration;
 
-        private static string GetNumbers(string input) => new string(input.Where(c => char.IsDigit(c) || c == '.' ).ToArray());
+        private IModdedLauncher moddedLauncher;
 
+        private static string GetNumbers(string input) => new string(input.Where(c => char.IsDigit(c) || c == '.' ).ToArray());
+        private void WriteLine(string text) => moddedLauncher.WriteLine(text, GetType());
         private async Task<installType> getInstallTypeAsync()
         {
             var filePath = Path.Combine(configuration.MainPath, "install_type.txt");
@@ -42,6 +43,8 @@ namespace TSMPModdedSIILauncher.Core
         public async Task DownloadAsync()
         {
             WriteLine("Preparing to Download");
+            moddedLauncher.SetStatusBar("Downloading Modpack", GetType(), StatusType.Downloading);
+
             var zipPath = Path.Combine(configuration.MainPath, "modpack.zip");
             if (File.Exists(zipPath)) File.Delete(zipPath);
             string url;
@@ -55,6 +58,8 @@ namespace TSMPModdedSIILauncher.Core
                 url = asset.BrowserDownloadUrl;
             }
             WriteLine($"Downloading from {url}\nThis may take a few minutes");
+            moddedLauncher.SetStatusBar($"Downloading Modpack from {url}", GetType(), StatusType.Downloading);
+
 
             // Download and display loading animation
             Stopwatch stopwatch = new Stopwatch();
@@ -69,7 +74,7 @@ namespace TSMPModdedSIILauncher.Core
             WriteLine($"Download Complete in {ts.Minutes}:{ts.Seconds}" );
 
             stopwatch.Reset();
-
+            moddedLauncher.SetStatusBar($"Modpack Download Complete in {ts.Minutes}:{ts.Seconds}", GetType(), StatusType.Ready);
         }
 
         public async Task InstallAsync()
@@ -77,6 +82,8 @@ namespace TSMPModdedSIILauncher.Core
             string[] excludedPaths = { "saves", "resourcepacks", "crash-reports", "shaderpacks", "screenshots", "options", "logs", "options.txt","optionsshader.txt","optionsof.txt" };
             string[] unnecessaryPaths = { ".github", "modules" };
             WriteLine("Installing");
+            moddedLauncher.SetStatusBar("Installing Modpack", GetType(), StatusType.Installing);
+
             var zipPath = Path.Combine(configuration.MainPath, "modpack.zip");
             var tempPath = Path.Combine(Path.GetTempPath(), "TSMPModdedSII");
             var installPath = Path.Combine(configuration.MainPath, "modpack");
@@ -120,11 +127,13 @@ namespace TSMPModdedSIILauncher.Core
             });
 
             WriteLine("Installation complete");
-
+            moddedLauncher.SetStatusBar("Modpack Installation Complete", GetType(), StatusType.Ready);
         }
 
         public async Task<bool> NeedsDownloadAsync()
         {
+
+
             var installedType = await getInstallTypeAsync();
             var installedVersion = await getInstallVersionAsync();
             var selectedType = configuration.LiveUpdates ? installType.Live : installType.Release;
@@ -137,18 +146,7 @@ namespace TSMPModdedSIILauncher.Core
             }
             else if (newestVersion != installedVersion)
             {
-                WriteLine($"Installed Version: {installedVersion} | {new DateTime((long)installedVersion, DateTimeKind.Utc ).ToLocalTime()}" );
-                WriteLine($"Latest Version: {newestVersion}" + (configuration.LiveUpdates ? $" | {new DateTime(Convert.ToInt64(await GetLatestLiveVersionAsync()), DateTimeKind.Utc).ToLocalTime() } " : ""));
-
-                WriteLine("Would You Like to install the latest version? (y,n)");
-                if (ReadKey(true).KeyChar == 'y')
-                {
-                    return true;
-                }
-                else
-                {
-                    WriteLine("Skipping update");
-                }
+                moddedLauncher.ConfirmUpdate($" {installedVersion} | {new DateTime((long)installedVersion, DateTimeKind.Utc).ToLocalTime()}", $"{newestVersion}" + (configuration.LiveUpdates ? $" | {new DateTime(Convert.ToInt64(await GetLatestLiveVersionAsync()), DateTimeKind.Utc).ToLocalTime() } " : ""));
 
             }
             return false;
@@ -157,12 +155,15 @@ namespace TSMPModdedSIILauncher.Core
 
         public void Uninstall()
         {
+            moddedLauncher.SetStatusBar("Unstalling Modpack", GetType(), StatusType.Installing);
             if (Directory.Exists(configuration.MainPath)) Directory.Delete(configuration.MainPath, true);
+            moddedLauncher.SetStatusBar("Modpack Removed", GetType(), StatusType.Ready);
         }
 
-        public ModpackService (Configuration configuration)
+        public ModpackService (IModdedLauncher _moddedLauncher)
         {
-            this.configuration = configuration;
+            configuration = _moddedLauncher.Configuration;
+            moddedLauncher = _moddedLauncher;
             httpClient.Timeout = TimeSpan.FromMinutes(5);
         }
 

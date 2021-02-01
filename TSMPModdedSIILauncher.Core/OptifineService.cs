@@ -12,9 +12,12 @@ namespace TSMPModdedSIILauncher.Core
     {
         private Configuration config;
         private HttpClient httpClient = new();
-        public OptifineService(Configuration config)
+        private IModdedLauncher moddedLauncher;
+        private void WriteLine(string text) => moddedLauncher.WriteLine(text, GetType());
+        public OptifineService(IModdedLauncher moddedLauncher)
         {
-            this.config = config;
+            this.moddedLauncher = moddedLauncher;
+            this.config = moddedLauncher.Configuration;
             httpClient.Timeout = TimeSpan.FromMinutes(3);
             httpClient.BaseAddress = new Uri( "https://optifine.net/");
         }
@@ -28,15 +31,20 @@ namespace TSMPModdedSIILauncher.Core
 
         public void RemoveOptifine()
         {
+            moddedLauncher.SetStatusBar("Removing Optifine", GetType(), StatusType.Installing);
+            WriteLine("Removing Optifine");
             var dirInfo = new DirectoryInfo(config.ModsPath)
                 .GetFiles()
                 .ToList();
             var file = dirInfo.Find((i) => i.Name == "optifine.jar");
             if (file is not null) File.Delete(file.FullName);
+            moddedLauncher.SetStatusBar("Optifine Removed", GetType(), StatusType.Ready);
         }
 
         public void InstallOptifine()
         {
+            WriteLine("Downloading/Installing Optifine");
+            moddedLauncher.SetStatusBar("Installing Optifine", GetType(), StatusType.Installing);
             Task.Run(async () =>
             {
                 RemoveOptifine();
@@ -51,6 +59,7 @@ namespace TSMPModdedSIILauncher.Core
                 await response.Content.CopyToAsync(file);
 
             }).GetAwaiter().GetResult();
+            moddedLauncher.SetStatusBar("Optifine Installed", GetType(), StatusType.Ready);
         } 
     }
 }

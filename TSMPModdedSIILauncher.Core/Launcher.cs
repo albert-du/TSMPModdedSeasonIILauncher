@@ -11,6 +11,7 @@ namespace TSMPModdedSIILauncher.Core
 {
     public class Launcher
     {
+
         /// <summary>
         /// Ensure the directory exists and if it doesn't, create it
         /// </summary>
@@ -24,12 +25,16 @@ namespace TSMPModdedSIILauncher.Core
 
             return p;
         }
+        private IModdedLauncher moddedLauncher;
+        private void WriteLine(string text) => moddedLauncher.WriteLine(text, GetType()); 
+
 
         private Configuration configuration;
 
-        public Launcher(Configuration configuration)
+        public Launcher(IModdedLauncher moddedLauncher)
         {
-            this.configuration = configuration;
+            this.moddedLauncher = moddedLauncher;
+            this.configuration = moddedLauncher.Configuration;
 
         }
         
@@ -39,6 +44,8 @@ namespace TSMPModdedSIILauncher.Core
         /// <param name="session"></param>
         public void LaunchGame(MSession session)
         {
+            moddedLauncher.SetStatusBar("Starting Minecraft", GetType(), StatusType.Launching);
+
             // Initializing Launcher
 
             // Set minecraft home directory
@@ -58,11 +65,11 @@ namespace TSMPModdedSIILauncher.Core
 
             // Create CMLauncher instance
             var launcher = new CMLauncher(game);
-            launcher.ProgressChanged += Downloader_ChangeProgress;
-            launcher.FileChanged += Downloader_ChangeFile;
+            launcher.ProgressChanged += moddedLauncher.LauncherDownloadChangeProgress;
+            launcher.FileChanged += moddedLauncher.LauncherDownloadChangeFile;
             launcher.LogOutput += (s, e) => Console.WriteLine(e);
 
-            Console.WriteLine($"Initialized in {launcher.MinecraftPath.BasePath}");
+            WriteLine($"Initialized in {launcher.MinecraftPath.BasePath}");
 
             var launchOption = new MLaunchOption
             {
@@ -93,11 +100,14 @@ namespace TSMPModdedSIILauncher.Core
             //var process = launcher.CreateProcess(Console.ReadLine(), launchOption);
 
             //var process = launcher.CreateProcess("1.16.2", "33.0.5", launchOption);
-            Console.WriteLine(process.StartInfo.Arguments);
+            WriteLine(process.StartInfo.Arguments);
+
+            moddedLauncher.SetStatusBar("Minecraft Started", GetType(), StatusType.Ready);
+
 
             // Below codes are print game logs in Console.
             var processUtil = new CmlLib.Utils.ProcessUtil(process);
-            processUtil.OutputReceived += (s, e) => Console.WriteLine(e);
+            processUtil.OutputReceived += (s, e) => WriteLine(e);
             processUtil.StartWithEvents();
             process.WaitForExit();
 
@@ -109,16 +119,16 @@ namespace TSMPModdedSIILauncher.Core
             return;
         }
 
-        public static MSession AutoLogin()
+        public MSession AutoLogin()
         {
             MLogin login = new();
             // if cached session is invalid, it refresh session automatically.
             // but refreshing session doesn't always succeed, so you have to handle this.
-            Console.WriteLine("Try Auto login");
-            Console.WriteLine(login.SessionCacheFilePath);
+            WriteLine("Try Auto login");
+            WriteLine(login.SessionCacheFilePath);
             var response = login.TryAutoLogin();
 
-            Console.WriteLine("Auto login failed : {0}", response.Result.ToString());
+            WriteLine($"Auto login failed : {response.Result}");
             return response.Session;
 
         }
@@ -129,7 +139,7 @@ namespace TSMPModdedSIILauncher.Core
         /// <param name="email">Mojang Email</param>
         /// <param name="password">Mojang Password</param>
         /// <returns>null if login failed, an Minecraft session otherwise</returns>
-        public static MSession Login(string email, string password)
+        public MSession Login(string email, string password)
         {
             //https://github.com/AlphaBs/CmlLib.Core/blob/v3.0.0/CmlLibCoreSample/Program.cs
             MLogin login = new();
@@ -139,45 +149,13 @@ namespace TSMPModdedSIILauncher.Core
             if (!response.IsSuccess)
             {
                 // session.Message contains detailed error message. it can be null or empty string.
-                Console.WriteLine("failed to login. {0} : {1}", response.Result, response.ErrorMessage);
+                WriteLine($"failed to login. {response.Result} : {response.ErrorMessage}");
                 return null;
             }
 
 
             return response.Session;
         }
-        // Event Handling
-
-        // The code below has some tricks to display logs prettier.
-        // You can use a simpler event handler
-
-        #region Pretty event handler
-
-        int nextline = -1;
-
-        private void Downloader_ChangeProgress(object sender, System.ComponentModel.ProgressChangedEventArgs e)
-        {
-            if (nextline < 0)
-                return;
-
-            Console.SetCursorPosition(0, nextline);
-
-            // e.ProgressPercentage: 0~100
-            Console.WriteLine("{0}%", e.ProgressPercentage);
-        }
-
-        private void Downloader_ChangeFile(DownloadFileChangedEventArgs e)
-        {
-            // More information about DownloadFileChangedEventArgs
-            // https://github.com/AlphaBs/CmlLib.Core/wiki/Handling-Events#downloadfilechangedeventargs
-
-            Console.WriteLine("[{0}] {1} - {2}/{3}           ", e.FileKind.ToString(), e.FileName, e.ProgressedFileCount, e.TotalFileCount);
-            if (e.FileKind == MFile.Resource && string.IsNullOrEmpty(e.FileName))
-                Console.SetCursorPosition(0, Console.CursorTop - 1);
-            nextline = Console.CursorTop;
-        }
-
-        #endregion
 
     }
 }

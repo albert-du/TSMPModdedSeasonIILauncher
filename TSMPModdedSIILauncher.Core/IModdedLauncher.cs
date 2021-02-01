@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CmlLib.Core.Downloader;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,24 +7,40 @@ using System.Threading.Tasks;
 
 namespace TSMPModdedSIILauncher.Core
 {
-    interface IModdedLauncher
+    public interface IModdedLauncher
     {
-        public bool VersionCheckInProgress { get; protected set; }
+        public void SetStatusBar(string text, Type source, StatusType statusType);
 
-        public bool DownloadInProgress { get; protected set; }
+        public void WriteLine(string text, Type source);
 
-        public bool InstallInProgress { get; protected set; }
-        public Configuration Configuration { get; protected set; }
-        public ModpackService ModpackService { get; protected set; }
-        public Launcher Launcher { get; protected set; }
-        public Shell Shell { get; protected set; }
-        public OptifineService optifineService { get; protected set; }
+        
+        public Configuration Configuration { get; set; }
+        
+        public ModpackService ModpackService { get; set; }
+        
+        public Launcher Launcher { get; set; }
+        
+        public Shell Shell { get; set; }
+        
+        public OptifineService OptifineService { get; set; }
 
-        public void Start();
+        #region ModpackService
+        public bool ConfirmUpdate(string installedVersion, string newVersion);
+        #endregion
 
-        public void Initialize()
-        {
+        #region Launcher
+        public void LauncherDownloadChangeProgress(object sender, System.ComponentModel.ProgressChangedEventArgs e);
+        public void LauncherDownloadChangeFile(DownloadFileChangedEventArgs e);
+        public void GameOutputWriteLine(string text);
+        #endregion
 
-        }
+        public void Initialize();
+
+        public string ShellReadLine();
+        public void ShellWrite(string text);
+        public void ShellWrite(string text, ConsoleColor consoleColor);
+        public void ShellWriteLine(string text);
+        public void ShellWriteLine(string text, ConsoleColor consoleColor);
+        public void ShellClear();
     }
 }

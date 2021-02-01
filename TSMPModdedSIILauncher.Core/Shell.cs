@@ -20,28 +20,22 @@ namespace TSMPModdedSIILauncher.Core
         public ModpackService ModpackService { get; init; }
         public OptifineService OptifineService { get; init; }
         public Launcher Launcher { get; init; }
-
+        
         private Configuration config;
 
-        private static void WriteLineCyan(string text)
-        {
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine(text + "\n");
-            Console.ResetColor();
-        }
-        private static void WriteLineRed(string text)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(text + "\n");
-            Console.ResetColor();
-        }
+        private IModdedLauncher moddedLauncher;
 
-        public Shell(Configuration configuration, ModpackService modpackService, Launcher launcher, OptifineService optifineService)
+        private void WriteLine(string text) => moddedLauncher.WriteLine(text, GetType()); 
+
+        private void WriteLineCyan(string text) => moddedLauncher.ShellWriteLine(text + "\n", ConsoleColor.Cyan);
+        private void WriteLineRed(string text) => moddedLauncher.ShellWriteLine(text + "\n", ConsoleColor.Red);
+        public Shell(IModdedLauncher moddedLauncher)
         {
-            ModpackService = modpackService;
-            OptifineService = optifineService;
-            Launcher = launcher;
-            config = configuration;
+            this.moddedLauncher = moddedLauncher;
+            ModpackService = moddedLauncher.ModpackService;
+            OptifineService = moddedLauncher.OptifineService;
+            Launcher = moddedLauncher.Launcher;
+            config = moddedLauncher.Configuration;
         }
 
         protected ShellExecutationResult SetEmail(string email)
@@ -60,7 +54,7 @@ namespace TSMPModdedSIILauncher.Core
             {
                 config.Memory = Convert.ToInt32(megabytes);
                 result = ShellExecutationResult.Success;
-                WriteLineCyan($"Email: int <MB> <- \"{config.Memory}\"");
+                WriteLineCyan($"Email: int <MB> <- {config.Memory}");
             }
             catch
             {
@@ -151,7 +145,7 @@ namespace TSMPModdedSIILauncher.Core
         protected ShellExecutationResult Update(bool force = false)
         {
             
-            Console.WriteLine(!force ? "Checking for Updates" : "Forcing Update");
+            moddedLauncher.ShellWriteLine(!force ? "Checking for Updates" : "Forcing Update");
             
             try
             {
@@ -163,17 +157,16 @@ namespace TSMPModdedSIILauncher.Core
                     }
 
                 }).GetAwaiter().GetResult();
-                Console.WriteLine();
+                moddedLauncher.ShellWriteLine("");
                 return ShellExecutationResult.Success;
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Update Failed");
-                Console.ResetColor();
+                moddedLauncher.ShellWriteLine(e.Message);
+
+                moddedLauncher.ShellWriteLine("Update Failed", ConsoleColor.Red);
             }
-            Console.WriteLine();
+            moddedLauncher.ShellWriteLine("");
             return ShellExecutationResult.Failure;
         }
 
@@ -209,7 +202,7 @@ namespace TSMPModdedSIILauncher.Core
                 ("email", 1)        => PrintResult($"Email : string = \"{config.Email}\""),
                 ("email", 2)        => SetEmail(tokens[1]),
 
-                ("memory", 1)       => PrintResult($"Email : int<MB> = \"{config.Memory}\""),
+                ("memory", 1)       => PrintResult($"Email : int<MB> = {config.Memory}"),
                 ("memory", 2)       => SetMemory(tokens[1]),
 
                 ("live_updates",1)   => PrintResult($"UseLiveUpdates : bool = {config.LiveUpdates.ToString().ToLower()}"),
@@ -243,19 +236,19 @@ namespace TSMPModdedSIILauncher.Core
                 ("update", 1)       => Update(),
                 ("update", 2) when ( tokens[1] == "-f" || tokens[1] == "--force") => Update(true),
 
-                ("config", 1) => ((Func<ShellExecutationResult>)(() => { Console.WriteLine($"{JsonSerializer.Serialize( config,new JsonSerializerOptions {WriteIndented = true }  )}\n"); return ShellExecutationResult.Success; }))(),
+                ("config", 1) => ((Func<ShellExecutationResult>)(() => { moddedLauncher.ShellWriteLine($"{JsonSerializer.Serialize( config,new JsonSerializerOptions {WriteIndented = true }  )}\n"); return ShellExecutationResult.Success; }))(),
                 ("config", 2) when (tokens[1] == "clear") => ((Func<ShellExecutationResult>)( () => { Configuration.ResetSettings(config); return ShellExecutationResult.Success; } ) )(),
 
-                ("session", 1) => ((Func<ShellExecutationResult>)(() => { var login = new MLogin(); Console.WriteLine($"{JsonSerializer.Serialize( login.ReadSessionCache(), new JsonSerializerOptions {WriteIndented = true }) }\n"); return ShellExecutationResult.Success; }))(),
-                ("session", 2) when (tokens[1] == "clear") => ((Func<ShellExecutationResult>)(() => { var login = new MLogin(); login.DeleteTokenFile(); Console.WriteLine("Cleared Session Cache\n"); return ShellExecutationResult.Success; }))(),
+                ("session", 1) => ((Func<ShellExecutationResult>)(() => { var login = new MLogin(); moddedLauncher.ShellWriteLine($"{JsonSerializer.Serialize( login.ReadSessionCache(), new JsonSerializerOptions {WriteIndented = true }) }\n"); return ShellExecutationResult.Success; }))(),
+                ("session", 2) when (tokens[1] == "clear") => ((Func<ShellExecutationResult>)(() => { var login = new MLogin(); login.DeleteTokenFile(); moddedLauncher.ShellWriteLine("Cleared Session Cache\n"); return ShellExecutationResult.Success; }))(),
                 
-                ("uninstall", 1) => ((Func<ShellExecutationResult>)(() => {Console.WriteLine("type 'UNINSTALL' to uninstall the modpack and game"); if (Console.ReadLine() != "UNINSTALL") return ShellExecutationResult.Success; return Uninstall();}))(),
+                ("uninstall", 1) => ((Func<ShellExecutationResult>)(() => { moddedLauncher.ShellWriteLine("type 'UNINSTALL' to uninstall the modpack and game"); if (moddedLauncher.ShellReadLine() != "UNINSTALL") return ShellExecutationResult.Success; return Uninstall();}))(),
 
                 ("exit", 1) => ShellExecutationResult.Exit,
 
                 ("clear",1) => Execute("shell"),
                 
-                ("shell", 1) => ((Func<ShellExecutationResult>)(() => { Console.Clear(); Start(); return ShellExecutationResult.Exit; }))(),
+                ("shell", 1) => ((Func<ShellExecutationResult>)(() => { moddedLauncher.ShellClear(); Start(); return ShellExecutationResult.Exit; }))(),
 
                 ("stop", 1) => ((Func<ShellExecutationResult>)(() => { Environment.Exit(0); return ShellExecutationResult.Success; }))(),
 
@@ -268,12 +261,12 @@ namespace TSMPModdedSIILauncher.Core
 
         public void Start()
         {
-            Console.Clear();
-            Console.WriteLine("TSMP/M SII Shell v1.0");
+            moddedLauncher.ShellClear();
+            moddedLauncher.ShellWriteLine("TSMP/M SII Shell v1.0");
             while(true)
             {
-                Console.Write("> ");
-                if ( Execute(Console.ReadLine()) == ShellExecutationResult.Exit) return;
+                moddedLauncher.ShellWrite("> ");
+                if ( Execute(moddedLauncher.ShellReadLine()) == ShellExecutationResult.Exit) return;
             }
         }
     }
