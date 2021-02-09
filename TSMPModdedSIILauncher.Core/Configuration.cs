@@ -21,7 +21,8 @@ namespace TSMPModdedSIILauncher.Core
         public string RepoName { get; set; } = "TSMP_Modded_Season_II";
         public string Branch { get; set; } = "master";
         public string MainPath { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSMPModdedSeasonII");
-        public bool UseConsoleLauncher { get; set; } = true;
+        public bool UseConsoleLauncher { get; set; } = false;
+        public bool UseExperimentalLauncher { get; set; } = false;
 
         [JsonIgnore]
         public string ModpackPath { get => Path.Combine(MainPath, "modpack"); }
