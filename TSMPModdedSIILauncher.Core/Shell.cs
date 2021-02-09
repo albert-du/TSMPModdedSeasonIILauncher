@@ -17,6 +17,8 @@ namespace TSMPModdedSIILauncher.Core
     }
     public class Shell
     {
+        private readonly object shellLock = new object();
+
         public ModpackService ModpackService { get; init; }
         public OptifineService OptifineService { get; init; }
         public Launcher Launcher { get; init; }
@@ -142,6 +144,21 @@ namespace TSMPModdedSIILauncher.Core
 
             return ShellExecutationResult.Success;
         }
+        protected ShellExecutationResult SetExperimentalLauncher(bool useExperimentalLauncher)
+        {
+            WriteLineCyan($"UseExperimentalLauncher : bool <- {useExperimentalLauncher}");
+
+            config.UseExperimentalLauncher = useExperimentalLauncher;
+
+            return ShellExecutationResult.Success;
+        }
+        protected ShellExecutationResult SetConsoleLauncher(bool useConsoleLauncher)
+        {
+            WriteLineCyan($"UseConsoleLauncher : bool <- {useConsoleLauncher}");
+            config.UseConsoleLauncher = useConsoleLauncher;
+            return ShellExecutationResult.Success;
+        }
+
         protected ShellExecutationResult Update(bool force = false)
         {
             
@@ -196,66 +213,77 @@ namespace TSMPModdedSIILauncher.Core
 
             var tokens = input.Split(' ').Select(i => i.Trim('\"') ).ToList();
             var isBool = tokens.Count > 1 && (tokens[1] == "true" || tokens[1] == "false");
-            ShellExecutationResult response = (tokens[0], tokens.Count ) switch
+            ShellExecutationResult response;
+            lock (shellLock)
             {
+                response = (tokens[0], tokens.Count) switch
+                {
 
-                ("email", 1)        => PrintResult($"Email : string = \"{config.Email}\""),
-                ("email", 2)        => SetEmail(tokens[1]),
+                    ("email", 1) => PrintResult($"Email : string = \"{config.Email}\""),
+                    ("email", 2) => SetEmail(tokens[1]),
 
-                ("memory", 1)       => PrintResult($"Email : int<MB> = {config.Memory}"),
-                ("memory", 2)       => SetMemory(tokens[1]),
+                    ("memory", 1) => PrintResult($"Email : int<MB> = {config.Memory}"),
+                    ("memory", 2) => SetMemory(tokens[1]),
 
-                ("live_updates",1)   => PrintResult($"UseLiveUpdates : bool = {config.LiveUpdates.ToString().ToLower()}"),
-                ("live_updates", 2) when isBool => SetLiveUpdates(tokens[1] == "true"),
+                    ("live_updates", 1) => PrintResult($"UseLiveUpdates : bool = {config.LiveUpdates.ToString().ToLower()}"),
+                    ("live_updates", 2) when isBool => SetLiveUpdates(tokens[1] == "true"),
 
-                ("resolution", 1)   => PrintResult($"Resolution : int * int = {config.ResolutionWidth} * {config.ResolutionHeight}"),
-                ("resolution", 2) when tokens[1] == "height"    => PrintResult($"ResolutionHeight : int = {config.ResolutionHeight}"),
-                ("resolution", 2) when tokens[1] == "width"     => PrintResult($"ResolutionWidth : int = {config.ResolutionWidth}"),
-                ("resolution", 3) when tokens[1] == "height"    => SetResolutionHeight(Convert.ToInt32(tokens[2]) ),
-                ("resolution", 3) when tokens[1] == "width"     => SetResolutionWidth(Convert.ToInt32(tokens[2]) ),
-                ("resolution", 4) when tokens[1] == "SET"       => SetResolution(Convert.ToInt32(tokens[2]),Convert.ToInt32(tokens[3]) ),
+                    ("resolution", 1) => PrintResult($"Resolution : int * int = {config.ResolutionWidth} * {config.ResolutionHeight}"),
+                    ("resolution", 2) when tokens[1] == "height" => PrintResult($"ResolutionHeight : int = {config.ResolutionHeight}"),
+                    ("resolution", 2) when tokens[1] == "width" => PrintResult($"ResolutionWidth : int = {config.ResolutionWidth}"),
+                    ("resolution", 3) when tokens[1] == "height" => SetResolutionHeight(Convert.ToInt32(tokens[2])),
+                    ("resolution", 3) when tokens[1] == "width" => SetResolutionWidth(Convert.ToInt32(tokens[2])),
+                    ("resolution", 4) when tokens[1] == "SET" => SetResolution(Convert.ToInt32(tokens[2]), Convert.ToInt32(tokens[3])),
 
-                ("jvm", 1)          => PrintResult($"JVMArguments : string = \"{config.JVMArgs}\""),
-                ("jvm", _)          => SetJVMArgs(string.Join(' ', tokens.ToArray()[1..])  ),
+                    ("jvm", 1) => PrintResult($"JVMArguments : string = \"{config.JVMArgs}\""),
+                    ("jvm", _) => SetJVMArgs(string.Join(' ', tokens.ToArray()[1..])),
 
-                ("repository", 1)   => PrintResult($"Owner, Repository : string * string = \"{config.RepoOwner}\" * \"{config.RepoName}\""),
-                ("repository", 3)   => SetRepo(tokens[1], tokens[2]),
+                    ("repository", 1) => PrintResult($"Owner, Repository : string * string = \"{config.RepoOwner}\" * \"{config.RepoName}\""),
+                    ("repository", 3) => SetRepo(tokens[1], tokens[2]),
 
-                ("branch", 1)       => PrintResult($"Branch : string = \"{config.Branch}\""),
-                ("branch", 2)       => SetBranch(tokens[1]),
+                    ("branch", 1) => PrintResult($"Branch : string = \"{config.Branch}\""),
+                    ("branch", 2) => SetBranch(tokens[1]),
 
-                ("optifine", 1)     => PrintResult($"UseOptifine : bool = {config.Optifine.ToString().ToLower()}"),
-                ("optifine", 2) when isBool => SetOptifine(tokens[1]=="true"),
+                    ("optifine", 1) => PrintResult($"UseOptifine : bool = {config.Optifine.ToString().ToLower()}"),
+                    ("optifine", 2) when isBool => SetOptifine(tokens[1] == "true"),
 
-                ("optifine_link", 1) => PrintResult($"OptifineLink : string = \"{config.OptifineLink}\""),
-                ("optifine_link", 2) => SetOptifineLink(tokens[1]),
-                
-                ("path", 1)         => PrintResult($"MainPath : string = \"{config.MainPath}\""),
-                ("path", 2)         => SetPath(tokens[1]),
+                    ("optifine_link", 1) => PrintResult($"OptifineLink : string = \"{config.OptifineLink}\""),
+                    ("optifine_link", 2) => SetOptifineLink(tokens[1]),
 
-                ("update", 1)       => Update(),
-                ("update", 2) when ( tokens[1] == "-f" || tokens[1] == "--force") => Update(true),
+                    ("path", 1) => PrintResult($"MainPath : string = \"{config.MainPath}\""),
+                    ("path", 2) => SetPath(tokens[1]),
 
-                ("config", 1) => ((Func<ShellExecutationResult>)(() => { moddedLauncher.ShellWriteLine($"{JsonSerializer.Serialize( config,new JsonSerializerOptions {WriteIndented = true }  )}\n"); return ShellExecutationResult.Success; }))(),
-                ("config", 2) when (tokens[1] == "clear") => ((Func<ShellExecutationResult>)( () => { Configuration.ResetSettings(config); return ShellExecutationResult.Success; } ) )(),
+                    ("experimental_launcher", 1) => PrintResult($"UseExperimentalLauncher : bool = {config.UseExperimentalLauncher.ToString().ToLower()}"),
+                    ("experimental_launcher", 2) when isBool => SetExperimentalLauncher(tokens[1] == "true"),
 
-                ("session", 1) => ((Func<ShellExecutationResult>)(() => { var login = new MLogin(); moddedLauncher.ShellWriteLine($"{JsonSerializer.Serialize( login.ReadSessionCache(), new JsonSerializerOptions {WriteIndented = true }) }\n"); return ShellExecutationResult.Success; }))(),
-                ("session", 2) when (tokens[1] == "clear") => ((Func<ShellExecutationResult>)(() => { var login = new MLogin(); login.DeleteTokenFile(); moddedLauncher.ShellWriteLine("Cleared Session Cache\n"); return ShellExecutationResult.Success; }))(),
-                
-                ("uninstall", 1) => ((Func<ShellExecutationResult>)(() => { moddedLauncher.ShellWriteLine("type 'UNINSTALL' to uninstall the modpack and game"); if (moddedLauncher.ShellReadLine() != "UNINSTALL") return ShellExecutationResult.Success; return Uninstall();}))(),
+                    ("console_launcher", 1) => PrintResult($"UseConsoleLauncher : bool = {config.UseConsoleLauncher.ToString().ToLower()}"),
+                    ("console_launcher", 2) when isBool => SetConsoleLauncher(tokens[1] == "true"),
 
-                ("exit", 1) => ShellExecutationResult.Exit,
+                    ("update", 1) => Update(),
+                    ("update", 2) when (tokens[1] == "-f" || tokens[1] == "--force") => Update(true),
 
-                ("clear",1) => Execute("shell"),
-                
-                ("shell", 1) => ((Func<ShellExecutationResult>)(() => { moddedLauncher.ShellClear(); Start(); return ShellExecutationResult.Exit; }))(),
+                    ("config", 1) => ((Func<ShellExecutationResult>)(() => { moddedLauncher.ShellWriteLine($"{JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true })}\n"); return ShellExecutationResult.Success; }))(),
+                    ("config", 2) when (tokens[1] == "clear") => ((Func<ShellExecutationResult>)(() => { Configuration.ResetSettings(config); return ShellExecutationResult.Success; }))(),
 
-                ("stop", 1) => ((Func<ShellExecutationResult>)(() => { Environment.Exit(0); return ShellExecutationResult.Success; }))(),
+                    ("session", 1) => ((Func<ShellExecutationResult>)(() => { var login = new MLogin(); moddedLauncher.ShellWriteLine($"{JsonSerializer.Serialize(login.ReadSessionCache(), new JsonSerializerOptions { WriteIndented = true }) }\n"); return ShellExecutationResult.Success; }))(),
+                    ("session", 2) when (tokens[1] == "clear") => ((Func<ShellExecutationResult>)(() => { var login = new MLogin(); login.DeleteTokenFile(); moddedLauncher.ShellWriteLine("Cleared Session Cache\n"); return ShellExecutationResult.Success; }))(),
 
-                (_,1) => ((Func<ShellExecutationResult>)(() => { WriteLineRed($"Unknown Command: \"{tokens[0]}\""); return ShellExecutationResult.Failure; }))(),
-                _ => ShellExecutationResult.Failure,
-            };
-            config.Save();
+                    ("uninstall", 1) => ((Func<ShellExecutationResult>)(() => { moddedLauncher.ShellWriteLine("type 'UNINSTALL' to uninstall the modpack and game"); if (moddedLauncher.ShellReadLine() != "UNINSTALL") return ShellExecutationResult.Success; return Uninstall(); }))(),
+
+                    ("exit", 1) => ShellExecutationResult.Exit,
+
+                    ("clear", 1) => Execute("shell"),
+
+                    ("shell", 1) => ((Func<ShellExecutationResult>)(() => { moddedLauncher.ShellClear(); Start(); return ShellExecutationResult.Exit; }))(),
+
+                    ("stop", 1) => ((Func<ShellExecutationResult>)(() => { Environment.Exit(0); return ShellExecutationResult.Success; }))(),
+
+                    (_, 1) => ((Func<ShellExecutationResult>)(() => { WriteLineRed($"Unknown Command: \"{tokens[0]}\""); return ShellExecutationResult.Failure; }))(),
+                    _ => ShellExecutationResult.Failure,
+                };
+                config.Save();
+            }
+            
             return response;
         }
 
