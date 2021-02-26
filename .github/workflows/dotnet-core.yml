@@ -54,7 +54,7 @@ jobs:
     - name: Upload Windows Artifact 
       uses: actions/upload-artifact@v2
       with: 
-        name: TSMPModdedSIILauncher-Windows
+        name: TSMPModdedSIILauncher-Windows-temp
         path: | 
           ./TSMPModdedSIILauncher.ConsoleApp/bin/Release/netcoreapp5.0/win-x64/publish/
           !./TSMPModdedSIILauncher.ConsoleApp/bin/Release/netcoreapp5.0/win-x64/publish/*.pdb
@@ -108,7 +108,7 @@ jobs:
       - name: Download Windows Binary
         uses: actions/download-artifact@v2
         with:
-          name: TSMPModdedSIILauncher-Windows
+          name: TSMPModdedSIILauncher-Windows-temp
       - name: Setup RCEdit
         run: |
           curl -o .//rcedit.exe https://github.com/electron/rcedit/releases/download/v1.1.1/rcedit-x86.exe -L
@@ -122,6 +122,9 @@ jobs:
           name: TSMPModdedSIILauncher-Windows
           path: TSMPModdedSIILauncher.exe
           retention-days: 30
+      - uses: geekyeggo/delete-artifact@v1
+        with:
+          name: TSMPModdedSIILauncher-Windows-temp
     
   Release:
     if: github.event_name == 'workflow_dispatch'
