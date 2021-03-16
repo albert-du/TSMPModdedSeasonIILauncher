@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using CmlLib.Core.Auth;
+using System.IO;
 
 namespace TSMPModdedSIILauncher.Core
 {
@@ -144,18 +145,19 @@ namespace TSMPModdedSIILauncher.Core
 
             return ShellExecutationResult.Success;
         }
-        protected ShellExecutationResult SetExperimentalLauncher(bool useExperimentalLauncher)
-        {
-            WriteLineCyan($"UseExperimentalLauncher : bool <- {useExperimentalLauncher}");
-
-            config.UseExperimentalLauncher = useExperimentalLauncher;
-
-            return ShellExecutationResult.Success;
-        }
         protected ShellExecutationResult SetConsoleLauncher(bool useConsoleLauncher)
         {
             WriteLineCyan($"UseConsoleLauncher : bool <- {useConsoleLauncher}");
-            config.UseConsoleLauncher = useConsoleLauncher;
+            if (useConsoleLauncher) File.Create(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSMPModdedSeasonII", "CONSOLELAUNCHER"));
+            else
+            {
+                try
+                {
+                    File.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSMPModdedSeasonII", "CONSOLELAUNCHER"));
+                }
+                catch { }
+            }
+                
             return ShellExecutationResult.Success;
         }
 
@@ -253,10 +255,7 @@ namespace TSMPModdedSIILauncher.Core
                     ("path", 1) => PrintResult($"MainPath : string = \"{config.MainPath}\""),
                     ("path", 2) => SetPath(tokens[1]),
 
-                    ("experimental_launcher", 1) => PrintResult($"UseExperimentalLauncher : bool = {config.UseExperimentalLauncher.ToString().ToLower()}"),
-                    ("experimental_launcher", 2) when isBool => SetExperimentalLauncher(tokens[1] == "true"),
-
-                    ("console_launcher", 1) => PrintResult($"UseConsoleLauncher : bool = {config.UseConsoleLauncher.ToString().ToLower()}"),
+                    ("console_launcher", 1) => PrintResult($"UseConsoleLauncher : bool = {File.Exists( Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSMPModdedSeasonII","CONSOLELAUNCHER")) .ToString().ToLower()}"),
                     ("console_launcher", 2) when isBool => SetConsoleLauncher(tokens[1] == "true"),
 
                     ("update", 1) => Update(),
