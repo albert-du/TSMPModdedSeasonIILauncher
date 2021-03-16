@@ -14,7 +14,7 @@ namespace TSMPModdedSIILauncher.Core
 
     public class ModpackService
     {
-        private HttpClient httpClient = new();
+        private HttpClient httpClient = new(new SocketsHttpHandler { UseProxy = false, Proxy = null } );
         private enum installType { Live, Release, None }
 
         private GitHubClient githubClient = new GitHubClient(new ProductHeaderValue("epic-thing"));
@@ -61,10 +61,9 @@ namespace TSMPModdedSIILauncher.Core
             moddedLauncher.SetStatusBar($"Downloading Modpack from {url}", GetType(), StatusType.Downloading);
 
 
-            // Download and display loading animation
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            var response = await httpClient.GetAsync(url);
+            using var response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseContentRead);
             
             TimeSpan ts = stopwatch.Elapsed;
 
@@ -146,7 +145,7 @@ namespace TSMPModdedSIILauncher.Core
             }
             else if (newestVersion != installedVersion)
             {
-                moddedLauncher.ConfirmUpdate($" {installedVersion} | {new DateTime((long)installedVersion, DateTimeKind.Utc).ToLocalTime()}", $"{newestVersion}" + (configuration.LiveUpdates ? $" | {new DateTime(Convert.ToInt64(await GetLatestLiveVersionAsync()), DateTimeKind.Utc).ToLocalTime() } " : ""));
+                return moddedLauncher.ConfirmUpdate($" {installedVersion} | {new DateTime((long)installedVersion, DateTimeKind.Utc).ToLocalTime()}", $"{newestVersion}" + (configuration.LiveUpdates ? $" | {new DateTime(Convert.ToInt64(await GetLatestLiveVersionAsync()), DateTimeKind.Utc).ToLocalTime() } " : ""));
 
             }
             return false;
@@ -164,7 +163,7 @@ namespace TSMPModdedSIILauncher.Core
         {
             configuration = _moddedLauncher.Configuration;
             moddedLauncher = _moddedLauncher;
-            httpClient.Timeout = TimeSpan.FromMinutes(5);
+            httpClient.Timeout = TimeSpan.FromMinutes(30);
         }
 
         public Task<IReadOnlyList<Release>> GetAllReleasesAsync() => githubClient.Repository.Release.GetAll(configuration.RepoOwner, configuration.RepoName);

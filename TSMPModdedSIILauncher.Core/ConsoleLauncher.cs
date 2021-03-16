@@ -183,7 +183,9 @@ namespace TSMPModdedSIILauncher.Core
             }
         }
 
-        public void GameOutputWriteLine(string text) => Console.WriteLine(text);
+        public void GameOutputWriteLine(string text) {
+            Console.WriteLine(text);
+        } 
 
         public void Initialize()
         {
@@ -350,5 +352,9 @@ namespace TSMPModdedSIILauncher.Core
             Console.ResetColor();
         }
         public void ShellClear() => Console.Clear();
+
+        public void ConfigChanged()
+        {
+        }
     }
 }

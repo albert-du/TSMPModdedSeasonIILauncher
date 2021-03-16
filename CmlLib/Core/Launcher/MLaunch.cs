@@ -68,10 +68,12 @@ namespace CmlLib.Core
             else
                 args.AddRange(DefaultJavaParameter);
 
-            args.Add("-Xmx" + LaunchOption.MaximumRamMb + "m");
+            if (LaunchOption.MaximumRamMb > 0 && !LaunchOption.JVMArguments.Any(arg => arg.ToLower().Contains("-xmx")))
+                args.Add("-Xmx" + LaunchOption.MaximumRamMb + "m");
 
-            if (LaunchOption.MinimumRamMb > 0)
+            if (LaunchOption.MinimumRamMb > 0 && !LaunchOption.JVMArguments.Any(arg => arg.ToLower().Contains("-xms")))
                 args.Add("-Xms" + LaunchOption.MinimumRamMb + "m");
+
 
             if (!string.IsNullOrEmpty(LaunchOption.DockName))
                 args.Add("-Xdock:name=" + handleEmpty(LaunchOption.DockName));

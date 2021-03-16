@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Collections.Generic;
 using System.Text;
 using CmlLib.Core;
@@ -67,9 +68,12 @@ namespace TSMPModdedSIILauncher.Core
             var launcher = new CMLauncher(game);
             launcher.ProgressChanged += moddedLauncher.LauncherDownloadChangeProgress;
             launcher.FileChanged += moddedLauncher.LauncherDownloadChangeFile;
-            launcher.LogOutput += (s, e) => Console.WriteLine(e);
-
-            WriteLine($"Initialized in {launcher.MinecraftPath.BasePath}");
+            launcher.LogOutput += (s, e) =>
+            {
+                Console.WriteLine("NO");
+                moddedLauncher.GameOutputWriteLine(e);
+            };
+            moddedLauncher.GameOutputWriteLine($"Initialized in {launcher.MinecraftPath.BasePath}");
 
             var launchOption = new MLaunchOption
             {
@@ -85,6 +89,7 @@ namespace TSMPModdedSIILauncher.Core
             // (A) checks forge installation and install forge if it was not installed.
             // (B) just launch any versions without installing forge, but it can still launch forge already installed.
             // Both methods automatically download essential files (ex: vanilla libraries) and create game process.
+            moddedLauncher.SetStatusBar("Minecraft Starting", GetType(), StatusType.Launching);
 
             // (A) download forge and launch
             var process = launcher.CreateProcess("1.12.2", "14.23.5.2854", launchOption);
@@ -98,16 +103,26 @@ namespace TSMPModdedSIILauncher.Core
             // launch by user input
             //Console.WriteLine("input version (example: 1.12.2) : ");
             //var process = launcher.CreateProcess(Console.ReadLine(), launchOption);
+            moddedLauncher.SetStatusBar("Minecraft Starting", GetType(), StatusType.Launching);
 
             //var process = launcher.CreateProcess("1.16.2", "33.0.5", launchOption);
             WriteLine(process.StartInfo.Arguments);
 
-            moddedLauncher.SetStatusBar("Minecraft Started", GetType(), StatusType.Ready);
+            new Thread(() =>
+            {
+                Thread.CurrentThread.IsBackground = true;
+                Thread.Sleep(TimeSpan.FromSeconds(30));
+                moddedLauncher.SetStatusBar("Minecraft Started", GetType(), StatusType.Ready);
+            }).Start();
+
 
 
             // Below codes are print game logs in Console.
             var processUtil = new CmlLib.Utils.ProcessUtil(process);
-            processUtil.OutputReceived += (s, e) => WriteLine(e);
+            processUtil.OutputReceived += (s, e) =>
+            {
+                if (!string.IsNullOrEmpty(e)) moddedLauncher.GameOutputWriteLine(e);
+            };
             processUtil.StartWithEvents();
             process.WaitForExit();
 
