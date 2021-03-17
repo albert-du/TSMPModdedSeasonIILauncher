@@ -30,11 +30,11 @@ jobs:
         
     - name: Build
       run: |
-        dotnet build --configuration Release --no-restore
+        dotnet build --configuration Release --no-restore ./src/
     
     - name: Test
       run: |
-        dotnet test --no-restore --verbosity detailed
+        dotnet test --no-restore --verbosity detailed ./src/
     
     - name: Publish
       run: | 
