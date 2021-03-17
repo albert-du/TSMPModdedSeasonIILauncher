@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp5.0</TargetFramework>
     <LangVersion>preview</LangVersion>
+    <AssemblyName>TSMPModdedSIILauncher</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
