@@ -38,17 +38,18 @@ jobs:
     
     - name: Publish
       run: | 
-        dotnet publish ./TSMPModdedSIILauncher -r linux-x64 -c Release --self-contained true /p:PublishSingleFile=true /p:PublishTrimmed=true /p:IncludeNativeLibrariesForSelfExtract=true
-        dotnet publish ./TSMPModdedSIILauncher -r osx-x64 -c Release --self-contained true /p:PublishSingleFile=true /p:PublishTrimmed=true /p:IncludeNativeLibrariesForSelfExtract=true
-        dotnet publish ./TSMPModdedSIILauncher -r win-x64 -c Release --self-contained true /p:PublishSingleFile=true /p:PublishTrimmed=true /p:IncludeNativeLibrariesForSelfExtract=true
+        dotnet publish ./src/TSMPModdedSIILauncher -r linux-x64 -c Release --self-contained true /p:PublishSingleFile=true /p:PublishTrimmed=true /p:IncludeNativeLibrariesForSelfExtract=true
+        dotnet publish ./src/TSMPModdedSIILauncher -r osx-x64 -c Release --self-contained true /p:PublishSingleFile=true /p:PublishTrimmed=true /p:IncludeNativeLibrariesForSelfExtract=true
+        dotnet publish ./src/TSMPModdedSIILauncher -r win-x64 -c Release --self-contained true /p:PublishSingleFile=true /p:PublishTrimmed=true /p:IncludeNativeLibrariesForSelfExtract=true
 
     - name: Upload Linux Artifact 
       uses: actions/upload-artifact@v2
       with: 
         name: TSMPModdedSIILauncher-Linux
         path: |
-          ./TSMPModdedSIILauncher/bin/Release/netcoreapp5.0/linux-x64/publish/
-          !./TSMPModdedSIILauncher/bin/Release/netcoreapp5.0/linux-x64/publish/*.pdb
+          ./src/TSMPModdedSIILauncher/bin/Release/netcoreapp5.0/linux-x64/publish/
+          !./src/TSMPModdedSIILauncher/bin/Release/netcoreapp5.0/linux-x64/publish/*.pdb
+          !./src/TSMPModdedSIILauncher/bin/Release/netcoreapp5.0/linux-x64/publish/*.mxl
         retention-days: 30
 
     - name: Upload Windows Artifact 
@@ -56,8 +57,9 @@ jobs:
       with: 
         name: TSMPModdedSIILauncher-Windows
         path: | 
-          ./TSMPModdedSIILauncher/bin/Release/netcoreapp5.0/win-x64/publish/
-          !./TSMPModdedSIILauncher/bin/Release/netcoreapp5.0/win-x64/publish/*.pdb
+          ./src/TSMPModdedSIILauncher/bin/Release/netcoreapp5.0/win-x64/publish/
+          !./src/TSMPModdedSIILauncher/bin/Release/netcoreapp5.0/win-x64/publish/*.pdb
+          !./src/TSMPModdedSIILauncher/bin/Release/netcoreapp5.0/linux-x64/publish/*.mxl
         retention-days: 30
     
     - name: Upload Mac Artifact 
@@ -65,8 +67,9 @@ jobs:
       with: 
         name: TSMPModdedSIILauncher-Mac
         path: |
-          ./TSMPModdedSIILauncher/bin/Release/netcoreapp5.0/osx-x64/publish/
-          !./TSMPModdedSIILauncher/bin/Release/netcoreapp5.0/osx-x64/publish/*.pdb
+          ./src/TSMPModdedSIILauncher/bin/Release/netcoreapp5.0/osx-x64/publish/
+          !./src/TSMPModdedSIILauncher/bin/Release/netcoreapp5.0/osx-x64/publish/*.pdb
+          !./src/TSMPModdedSIILauncher/bin/Release/netcoreapp5.0/linux-x64/publish/*.mxl
         retention-days: 30
   PackageMacApp:
     needs: [Build]
@@ -86,7 +89,7 @@ jobs:
           mv ./resources/macplist TSMPModdedSII-Mac/TSMPModdedSIILauncher.app/Contents/Info.plist 
           mv ./resources/icon.icns TSMPModdedSII-Mac/TSMPModdedSIILauncher.app/Contents/Resources/icon.icns
           
-          cp TSMPModdedSIILauncher TSMPModdedSII-Mac/TSMPModdedSIILauncher.app/Contents/MacOS/TSMPModdedSeasonII
+          mv TSMPModdedSIILauncher TSMPModdedSII-Mac/TSMPModdedSIILauncher.app/Contents/MacOS/TSMPModdedSeasonII
           mv ./resources/mac TSMPModdedSII-Mac/TSMPModdedSIILauncher.app/Contents/MacOS/TSMPModdedSIILauncher
           
           chmod +x TSMPModdedSII-Mac/TSMPModdedSIILauncher.app/Contents/MacOS/TSMPModdedSeasonII
