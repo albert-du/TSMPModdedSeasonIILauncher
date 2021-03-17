@@ -80,6 +80,7 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: TSMPModdedSIILauncher-Mac
+          path: artifact
       
       - name: Create .app
         run: | 
@@ -89,7 +90,8 @@ jobs:
           mv ./resources/macplist TSMPModdedSII-Mac/TSMPModdedSIILauncher.app/Contents/Info.plist 
           mv ./resources/icon.icns TSMPModdedSII-Mac/TSMPModdedSIILauncher.app/Contents/Resources/icon.icns
           
-          mv TSMPModdedSIILauncher TSMPModdedSII-Mac/TSMPModdedSIILauncher.app/Contents/MacOS/TSMPModdedSeasonII
+          mv artifact/TSMPModdedSIILauncher TSMPModdedSII-Mac/TSMPModdedSIILauncher.app/Contents/MacOS/TSMPModdedSeasonII
+          mv -v artifact/* TSMPModdedSII-Mac/TSMPModdedSIILauncher.app/Contents/MacOS/
           mv ./resources/mac TSMPModdedSII-Mac/TSMPModdedSIILauncher.app/Contents/MacOS/TSMPModdedSIILauncher
           
           chmod +x TSMPModdedSII-Mac/TSMPModdedSIILauncher.app/Contents/MacOS/TSMPModdedSeasonII
