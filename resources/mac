@@ -2,4 +2,10 @@
 
 BASEDIR=$(dirname "$0")
 
-open -a Terminal "$BASEDIR"/TSMPModdedSeasonII
+FILE=~/.local/share/TSMPModdedSeasonII/CONSOLELAUNCHER
+
+if [ -f "$FILE" ]; then 
+    open -a Terminal "$BASEDIR"/TSMPModdedSeasonII
+else
+    "$BASEDIR"/TSMPModdedSeasonII
+fi
