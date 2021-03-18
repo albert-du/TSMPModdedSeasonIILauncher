@@ -64,7 +64,7 @@ namespace CmlLib.Core.Version
 
                 return list.ToArray();
             }
-            catch (Exception ex)
+            catch 
             {
 
                 return null;
