@@ -1,13 +1,9 @@
 ﻿namespace TSMPModdedSIILauncher
 
-open System
-open System.IO
-
 open Avalonia
 open Avalonia.Controls.ApplicationLifetimes
 open Avalonia.FuncUI
 
-open TSMPModdedSIILauncher.Core
 open TSMPModdedSIILauncher.Views
 
 type App() =
@@ -24,15 +20,9 @@ type App() =
 
 module Program =
     [<EntryPoint>]
-    let main (args: string []) =
-        if File.Exists (Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSMPModdedSeasonII", "CONSOLELAUNCHER")) then
-            let consoleLauncher = new ConsoleLauncher()
-            consoleLauncher.Initialize()
-            consoleLauncher.Start()
-            0
-        else 
-            AppBuilder
-                .Configure<App>()
-                .UsePlatformDetect()
-                .UseSkia()
-                .StartWithClassicDesktopLifetime(args)
+    let main args =
+        AppBuilder
+            .Configure<App>()
+            .UsePlatformDetect()
+            .UseSkia()
+            .StartWithClassicDesktopLifetime args

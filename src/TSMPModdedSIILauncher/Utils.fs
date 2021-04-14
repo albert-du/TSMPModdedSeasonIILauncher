@@ -53,7 +53,7 @@ module internal Utils =
         else if RuntimeInformation.IsOSPlatform(OSPlatform.OSX) then
             Process.Start("open", url) |> ignore
 
-    let mcSkinStream uuid =
+    let mcSkinStreamAsync uuid =
         async {
             let ms = new MemoryStream ()
             let! stream = httpClient.GetStreamAsync($"https://crafatar.com/avatars/%s{uuid}?size=100") |> Async.AwaitTask

@@ -12,6 +12,7 @@ open Avalonia.Threading
 open Avalonia.Media
 open Avalonia.Media.Immutable
 
+open Avalonia.FuncUI
 open Avalonia.FuncUI.DSL
 open Avalonia.FuncUI.Elmish
 open Avalonia.FuncUI.Components.Hosts
@@ -110,7 +111,7 @@ module MainWindow =
             match lMsg with 
             | Login.Msg.LoginSuccess session -> 
                 {state with session = Some session; loginState = loginState}, 
-                    if session.UUID <> "user_uuid" then Cmd.OfAsync.perform Utils.mcSkinStream session.UUID (fun s -> s.Position <- 0L ; new Bitmap (s) |> UpdateAvatar) else Cmd.none
+                    if session.UUID <> "user_uuid" then Cmd.OfAsync.perform Utils.mcSkinStreamAsync session.UUID (fun s -> s.Position <- 0L ; new Bitmap (s) |> UpdateAvatar) else Cmd.none
             | _ -> 
                 { state with loginState = loginState}, Cmd.map LoginMsg cmd
 
@@ -526,7 +527,10 @@ module MainWindow =
                         Settings.view state.settingsState (SettingsMsg >> dispatch)
                 ]
             ]
-        | None -> Login.view state.loginState (LoginMsg >> dispatch) // Login view
+            |> generalize
+        | None -> 
+            Login.view state.loginState (LoginMsg >> dispatch) // Login view
+            |> generalize
 
 
     module Subs =

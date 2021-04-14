@@ -255,7 +255,7 @@ namespace TSMPModdedSIILauncher.Core
                     ("path", 1) => PrintResult($"MainPath : string = \"{config.MainPath}\""),
                     ("path", 2) => SetPath(tokens[1]),
 
-                    ("console_launcher", 1) => PrintResult($"UseConsoleLauncher : bool = {File.Exists( Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSMPModdedSeasonII","CONSOLELAUNCHER")) .ToString().ToLower()}"),
+                    ("console_launcher", 1) => PrintResult($"UseConsoleLauncher : bool = {File.Exists( Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSMPModdedSeasonII","CONSOLELAUNCHER")) .ToString().ToLower()} \n *Only applies to MacApp Version"),
                     ("console_launcher", 2) when isBool => SetConsoleLauncher(tokens[1] == "true"),
 
                     ("update", 1) => Update(),
