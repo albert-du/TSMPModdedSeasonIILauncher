@@ -113,9 +113,10 @@ jobs:
         with:
           name: TSMPModdedSIILauncher-Mac
           path: artifact
+      - name: Download Mac Console Binary
         uses: actions/download-artifact@v1
         with:
-          name: TSMPModdedSIILauncher-Mac
+          name: TSMPModdedSIILauncher-MacConsole
           path: artifactConsole
       
       - name: Create .app
