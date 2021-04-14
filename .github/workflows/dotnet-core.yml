@@ -127,7 +127,7 @@ jobs:
           mv ./resources/macplist TSMPModdedSII-Mac/TSMPModdedSIILauncher.app/Contents/Info.plist 
           mv ./resources/icon.icns TSMPModdedSII-Mac/TSMPModdedSIILauncher.app/Contents/Resources/icon.icns
           
-          mv artifact/TSMPModdedSIILauncher.ConsoleLauncher TSMPModdedSII-Mac/TSMPModdedSIILauncher.app/Contents/MacOS/TSMPModdedSeasonIIConsole
+          mv artifactConsole/TSMPModdedSIILauncher.ConsoleLauncher TSMPModdedSII-Mac/TSMPModdedSIILauncher.app/Contents/MacOS/TSMPModdedSeasonIIConsole
           mv artifact/TSMPModdedSIILauncher TSMPModdedSII-Mac/TSMPModdedSIILauncher.app/Contents/MacOS/TSMPModdedSeasonII
           mv -v artifact/* TSMPModdedSII-Mac/TSMPModdedSIILauncher.app/Contents/MacOS/
           mv ./resources/mac TSMPModdedSII-Mac/TSMPModdedSIILauncher.app/Contents/MacOS/TSMPModdedSIILauncher
